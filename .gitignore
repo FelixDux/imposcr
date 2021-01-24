@@ -1,0 +1,7 @@
+/target
+*.swp
+*.png
+*.log
+TODO.txt
+errors/
+errorfile.txt
