@@ -5,10 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: tests",
+            "type": "python",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/imposc",
+            "module": "pytest"
+        },
+        {
             "name": "Python: FastAPI",
             "type": "python",
             "request": "launch",
             "module": "uvicorn",
+            "cwd": "${workspaceFolder}/imposc",
             "args": [
                 "main:app"
             ],
