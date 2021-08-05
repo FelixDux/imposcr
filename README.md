@@ -28,23 +28,24 @@ Plan is as follows:
 
 - Business logic in Rust
 - Wrap the Rust in Python using FFI, probably with [rustpy](https://github.com/iduartgomez/rustypy) or starting with the pattern in [this article](https://depth-first.com/articles/2020/08/03/wrapping-rust-types-as-python-classes/).
-- Use FastAPI and Typer to provide a Web API and a CLI respectively
+- Use [FastAPI](https://fastapi.tiangolo.com) to provide a Web API
 - Serve an SPA (borrowed from imposcg) from /static endpoint and redirect the root to this
 - just serve up data from rust and plot either in Python or in the SPA in js
 - Put it inside Docker
 - Deploy using elastic beanstalk
+- maybe have a CLI as well?
 
 ## Project Structure
 
-- Rust project
+- `imposclib` (Rust project library)
     - `src`
         - subfolders with business logic
         - `lib.rs`
-        - `imposcr\`
+        - `imposclib\`
             - `__init__.py`
             - `config.py`
             - `imposcr.py`
-- FastAPI Project
+- (`imposc`) FastAPI Project
     - `.venv\`
     - `src\`
     - `static\`
@@ -52,23 +53,22 @@ Plan is as follows:
     - `requirements-common.txt`
     - `requirements.txt`
     - `requirements-dev.txt`
-- Typer Project
-    - `.venv\`
-    - `src\`
-    - `test\`
-    - `requirements-common.txt`
-    - `requirements.txt`
-    - `requirements-dev.txt`
+
+Later on consider adding:
+
+- `imposc-cli` (Rust CLI project)
+    - `src`
+        - `main.rs`
 
 Both Python projects will include the following in `requirements.txt`:
 ```
-..\rust-project-folder-name\target\release\imposcr
+..\rust-project-folder-name\target\release\imposclib
 -r requirements-common.txt
 ```
 
 and the following in `requirements-dev.txt`:
 ```
-..\rust-project-folder-name\target\debug\imposcr
+..\rust-project-folder-name\target\debug\imposclib
 -r requirements-common.txt
 pytest
 <other dev/test dependencies>
