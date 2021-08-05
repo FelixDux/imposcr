@@ -33,6 +33,11 @@ Plan is as follows:
 - Put it inside Docker
 - Deploy using elastic beanstalk
 
+A couple of other thoughts:
+
+- just serve up data from rust and plot either in Python or in the SPA in js
+- take the opportunity to try some outside-in TDD. To do this I need to plan out the vertical slices - use the imposcpp project asa guide for this, but start with something super-simple
+
 ### FFI Links
 https://depth-first.com/articles/2020/08/03/wrapping-rust-types-as-python-classes/
 http://jakegoulding.com/rust-ffi-omnibus/
