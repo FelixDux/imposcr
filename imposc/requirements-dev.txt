@@ -1,5 +1,4 @@
 -r requirements-common.txt
-pydantic
 pytest
 requests
 # ..\rust-project-folder-name\target\debug\imposclib
