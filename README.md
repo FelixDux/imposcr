@@ -103,9 +103,6 @@ So ... test criteria look like:
 - https://michael-f-bryan.github.io/rust-ffi-guide/
 - https://github.com/rapodaca/hash_set/
 
-### PS
-Imposccpp tried a similar trick wrapping C++ in Python but the SPA is served separately. Try using K8s to orchestrate this and deploy it to GCloud?
-
 ## Installing and Running
 
 TBD
