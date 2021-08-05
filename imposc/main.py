@@ -13,6 +13,6 @@ async def read_parameter_info(category):
     result = parameter_info(category)
 
     if result is None:
-        raise HTTPException(status_code=404, detail="Category not found")
+        raise HTTPException(status_code=404, detail="Parameter info category not found")
     else:
         return result
