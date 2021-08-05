@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from adapters import parameter_info
 
 app = FastAPI()
 
@@ -9,4 +10,8 @@ async def read_main():
 
 @app.get("/api/parameter-info/symbols")
 async def read_parameter_symbols():
-    return {"Properties":[{"Parameter":"frequency","Property":"ω"},{"Parameter":"offset","Property":"σ"},{"Parameter":"phi","Property":"φ"}]}
+    return parameter_info("symbols")
+
+@app.get("/api/parameter-info/groups")
+async def read_parameter_symbols():
+    return parameter_info("groups")

@@ -18,3 +18,8 @@ def test_read_parameter_symbols():
     response = client.get("/api/parameter-info/symbols")
     assert response.status_code == 200
     assert response.json() == {"Properties":[{"Parameter":"frequency","Property":"ω"},{"Parameter":"offset","Property":"σ"},{"Parameter":"phi","Property":"φ"}]}
+
+def test_read_parameter_groups():
+    response = client.get("/api/parameter-info/groups")
+    assert response.status_code == 200
+    assert response.json() == {"Properties":[{"Parameter":"frequency","Property":"System parameters"},{"Parameter":"offset","Property":"System parameters"},{"Parameter":"r","Property":"System parameters"},{"Parameter":"phi","Property":"Initial impact"},{"Parameter":"v","Property":"Initial impact"},{"Parameter":"maxPeriods","Property":"Control parameters"},{"Parameter":"numIterations","Property":"Control parameters"},{"Parameter":"numPoints","Property":"Control parameters"}]}

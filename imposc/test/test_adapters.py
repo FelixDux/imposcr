@@ -7,6 +7,7 @@ def test_parameter_info_not_valid(input):
 
 @pytest.mark.parametrize(('category', 'expected'), [
     ("symbols", {"Properties":[{"Parameter":"frequency","Property":"ω"},{"Parameter":"offset","Property":"σ"},{"Parameter":"phi","Property":"φ"}]}),
+    ("groups", {"Properties":[{"Parameter":"frequency","Property":"System parameters"},{"Parameter":"offset","Property":"System parameters"},{"Parameter":"r","Property":"System parameters"},{"Parameter":"phi","Property":"Initial impact"},{"Parameter":"v","Property":"Initial impact"},{"Parameter":"maxPeriods","Property":"Control parameters"},{"Parameter":"numIterations","Property":"Control parameters"},{"Parameter":"numPoints","Property":"Control parameters"}]}),
     ("garbage", None)
 ])
 def test_parameter_info_valid(category, expected):
