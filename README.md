@@ -30,19 +30,78 @@ Plan is as follows:
 - Wrap the Rust in Python using FFI, probably with [rustpy](https://github.com/iduartgomez/rustypy) or starting with the pattern in [this article](https://depth-first.com/articles/2020/08/03/wrapping-rust-types-as-python-classes/).
 - Use FastAPI and Typer to provide a Web API and a CLI respectively
 - Serve an SPA (borrowed from imposcg) from /static endpoint and redirect the root to this
+- just serve up data from rust and plot either in Python or in the SPA in js
 - Put it inside Docker
 - Deploy using elastic beanstalk
 
-A couple of other thoughts:
+## Project Structure
 
-- just serve up data from rust and plot either in Python or in the SPA in js
-- take the opportunity to try some outside-in TDD. To do this I need to plan out the vertical slices - use the imposcpp project asa guide for this, but start with something super-simple
+- Rust project
+    - `src`
+        - subfolders with business logic
+        - `lib.rs`
+        - `imposcr\`
+            - `__init__.py`
+            - `config.py`
+            - `imposcr.py`
+- FastAPI Project
+    - `.venv\`
+    - `src\`
+    - `static\`
+    - `test\`
+    - `requirements-common.txt`
+    - `requirements.txt`
+    - `requirements-dev.txt`
+- Typer Project
+    - `.venv\`
+    - `src\`
+    - `test\`
+    - `requirements-common.txt`
+    - `requirements.txt`
+    - `requirements-dev.txt`
+
+Both Python projects will include the following in `requirements.txt`:
+```
+..\rust-project-folder-name\target\release\imposcr
+-r requirements-common.txt
+```
+
+and the following in `requirements-dev.txt`:
+```
+..\rust-project-folder-name\target\debug\imposcr
+-r requirements-common.txt
+pytest
+<other dev/test dependencies>
+```
+
+## Vertical Slices
+
+Take the opportunity to try some outside-in TDD. To do this I need to plan out the vertical slices - use the [imposcpp](https://github.com/FelixDux/imposccpp.git) project as a guide for this, but start with something super-simple.
+
+A vertical slice will comprise:
+
+- Some SPA functionality
+- An API endpoint (and/or a CLI command?)
+- A Python function which the endpoint/CLI command wraps
+- Units comprising the Python function
+- A Rust function or functions which some of the Python units wrap
+- Units comprising each Python function
+
+Given that the SPA will be lifted from another project, and in order to start with something manageable, let's start with the simplest possible slice, starting from an API endpoint. The slices we eventually want to play with are big - iterating the impact map etc. Let's start with symbols and groups (see [imposcg](https://github.com/FelixDux/imposcg.git)).
+
+So ... test criteria look like:
+
+- GET `/api/parameter-info/symbols` returns JSON `{"Properties":[{"Parameter":"frequency","Property":"ω"},{"Parameter":"offset","Property":"σ"},{"Parameter":"phi","Property":"φ"}]}`
+- GET `/api/parameter-info/groups` returns JSON `{"Properties":[{"Parameter":"frequency","Property":"System parameters"},{"Parameter":"offset","Property":"System parameters"},{"Parameter":"r","Property":"System parameters"},{"Parameter":"phi","Property":"Initial impact"},{"Parameter":"v","Property":"Initial impact"},{"Parameter":"maxPeriods","Property":"Control parameters"},{"Parameter":"numIterations","Property":"Control parameters"},{"Parameter":"numPoints","Property":"Control parameters"}]}`
+- (Equivalent for CLI calls)
+- In module `imposcr.py`, call to `parameter_info()` with argument == "symbols"|"groups" returns correct JSON object
+- Exactly the same for wrapped Rust function
 
 ### FFI Links
-https://depth-first.com/articles/2020/08/03/wrapping-rust-types-as-python-classes/
-http://jakegoulding.com/rust-ffi-omnibus/
-https://michael-f-bryan.github.io/rust-ffi-guide/
-https://github.com/rapodaca/hash_set/
+- https://depth-first.com/articles/2020/08/03/wrapping-rust-types-as-python-classes/
+- http://jakegoulding.com/rust-ffi-omnibus/
+- https://michael-f-bryan.github.io/rust-ffi-guide/
+- https://github.com/rapodaca/hash_set/
 
 ### PS
 Imposccpp tried a similar trick wrapping C++ in Python but the SPA is served separately. Try using K8s to orchestrate this and deploy it to GCloud?
