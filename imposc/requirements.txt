@@ -1,2 +1,4 @@
--r requirements-common.txt
-#..\rust-project-folder-name\target\release\imposclib
+fastapi
+pydantic
+uvicorn[standard]
+../imposclib/imposclib
