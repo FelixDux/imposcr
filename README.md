@@ -45,6 +45,7 @@ Plan is as follows:
             - `__init__.py`
             - `config.py`
             - `imposcr.py`
+    - `tests\`
 - (`imposc`) FastAPI Project
     - `.venv\`
     - `src\`

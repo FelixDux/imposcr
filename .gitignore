@@ -1,4 +1,4 @@
-/target
+imposclib/target
 
 # The Rust project is a library so ignore this
 Cargo.lock
