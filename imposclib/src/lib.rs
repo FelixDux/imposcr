@@ -1,13 +1,9 @@
-// extern crate libc;
 use pyo3::prelude::*;
 use pyo3::{PyIterProtocol, PyMappingProtocol};
 
 use std::convert::From;
 
-// use libc::c_char;
 use std::collections::HashMap;
-// use std::ffi::CStr;
-// use std::ffi::CString;
 
 #[pymodule]
 fn imposclib(py: Python, m: &PyModule) -> PyResult<()> {
@@ -68,43 +64,43 @@ impl PyMappingProtocol for ParameterProperties {
     // }
 }
 
-// #[pyproto]
-// impl PyIterProtocol for ParameterProperties {
-//     fn __iter__(slf: PyRefMut<Self>) -> PyResult<PyObject> {
-//         let mapping = &*slf;
-//         let gil = Python::acquire_gil();
-//         let py = gil.python();
-//         let iter = IntoPy::into_py(
-//             Py::new(py, PyParameterPropertiesIter::new(mapping.properties.iter().map(|(k, _)| k.to_owned()).collect()))?,
-//             py,
-//         );
+#[pyproto]
+impl PyIterProtocol for ParameterProperties {
+    fn __iter__(slf: PyRefMut<Self>) -> PyResult<PyObject> {
+        let mapping = &*slf;
+        let gil = Python::acquire_gil();
+        let py = gil.python();
+        let iter = IntoPy::into_py(
+            Py::new(py, PyParameterPropertiesIter::new(mapping.properties.iter().map(|(k, _)| k.to_owned()).collect()))?,
+            py,
+        );
 
-//         Ok(iter)
-//     }
-// }
+        Ok(iter)
+    }
+}
 
-// #[pyclass(name = ParameterPropertiesIter)]
-// pub struct PyParameterPropertiesIter {
-//     v: vec::IntoIter<String>,
-// }
+#[pyclass(name = "ParameterPropertiesIter")]
+pub struct PyParameterPropertiesIter {
+    v: std::vec::IntoIter<String>,
+}
 
-// impl PyParameterPropertiesIter {
-//     pub fn new(v: Vec<String>) -> Self {
-//         PyParameterPropertiesIter { v: v.into_iter() }
-//     }
-// }
+impl PyParameterPropertiesIter {
+    pub fn new(v: Vec<String>) -> Self {
+        PyParameterPropertiesIter { v: v.into_iter() }
+    }
+}
 
-// #[pyproto]
-// impl PyIterProtocol for PyParameterPropertiesIter {
-//     fn __iter__(slf: PyRefMut<Self>) -> PyResult<Py<PyParameterPropertiesIter>> {
-//         Ok(slf.into())
-//     }
+#[pyproto]
+impl PyIterProtocol for PyParameterPropertiesIter {
+    fn __iter__(slf: PyRefMut<Self>) -> PyResult<Py<PyParameterPropertiesIter>> {
+        Ok(slf.into())
+    }
 
-//     fn __next__(mut slf: PyRefMut<Self>) -> PyResult<Option<String>> {
-//         let slf = &mut *slf;
-//         Ok(slf.v.next())
-//     }
-// }
+    fn __next__(mut slf: PyRefMut<Self>) -> PyResult<Option<String>> {
+        let slf = &mut *slf;
+        Ok(slf.v.next())
+    }
+}
 
 impl ParameterProperties {
     pub fn create() -> ParameterProperties
@@ -134,46 +130,6 @@ impl From<Vec<(&str, &str)>> for ParameterProperties {
     }
 }
 
-// #[no_mangle]
-// pub extern "C" fn parameter_properties_new() -> *mut ParameterProperties {
-//     Box::into_raw(Box::new(ParameterProperties::new()))
-// }
-
-// #[no_mangle]
-// pub extern "C" fn parameter_properties_free(ptr: *mut ParameterProperties) {
-//     if ptr.is_null() {
-//         return;
-//     }
-//     unsafe {
-//         Box::from_raw(ptr);
-//     }
-// }
-
-// #[no_mangle]
-// pub extern "C" fn parameter_properties_populate(ptr: *mut ParameterProperties) {
-//     let database = unsafe {
-//         assert!(!ptr.is_null());
-//         &mut *ptr
-//     };
-//     database.populate();
-// }
-
-// #[no_mangle]
-// pub extern "C" fn parameter_properties_population_of(
-//     ptr: *const ParameterProperties,
-//     zip: *const c_char,
-// ) -> u32 {
-//     let database = unsafe {
-//         assert!(!ptr.is_null());
-//         &*ptr
-//     };
-//     let zip = unsafe {
-//         assert!(!zip.is_null());
-//         CStr::from_ptr(zip)
-//     };
-//     let zip_str = zip.to_str().unwrap();
-//     database.population_of(zip_str)
-// }
 
 #[cfg(test)]
 mod tests {
@@ -181,7 +137,7 @@ mod tests {
 
     #[test]
     fn can_access_parameter_properties() {
-        let mut properties = ParameterProperties::from(vec![("frequency", "ω")]);
+        let properties = ParameterProperties::from(vec![("frequency", "ω")]);
         assert_eq!(properties.property("frequency"), String::from("ω"));
         assert_eq!(properties.property("period"), String::from(""));
     }
