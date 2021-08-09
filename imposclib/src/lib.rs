@@ -1,3 +1,5 @@
+// Using [PyO3](https://pyo3.rs/v0.14.1/), with [maturin](https://crates.io/crates/maturin) for distribution
+
 use pyo3::prelude::*;
 use pyo3::{PyIterProtocol, PyMappingProtocol};
 
@@ -49,29 +51,16 @@ impl PyMappingProtocol for ParameterProperties {
     fn __getitem__(&self, key: String) -> PyResult<String> {
         Ok(self.properties.get(&key).cloned().unwrap_or_default())
     }
-
-    // fn __iter__(&self, py: Python) -> PyResult<PyObject> {
-    //     let iter = IntoPy::into_py(
-    //         Py::new(py, PyParameterPropertiesIter::new(self.properties.iter().map(|(k, _)| k.to_owned()).collect()))?,
-    //         py,
-    //     );
-
-    //     Ok(iter)
-    // }
-
-    // fn __contains__(&self, word: String) -> PyResult<bool> {
-    //     Ok(self.properties.contains_key(&word))
-    // }
 }
 
 #[pyproto]
 impl PyIterProtocol for ParameterProperties {
     fn __iter__(slf: PyRefMut<Self>) -> PyResult<PyObject> {
-        let mapping = &*slf;
+        let props = &*slf;
         let gil = Python::acquire_gil();
         let py = gil.python();
         let iter = IntoPy::into_py(
-            Py::new(py, PyParameterPropertiesIter::new(mapping.properties.iter().map(|(k, _)| k.to_owned()).collect()))?,
+            Py::new(py, PyParameterPropertiesIter::new(props.properties.iter().map(|(k, v)| (k.to_owned(), v.to_owned())).collect()))?,
             py,
         );
 
@@ -81,11 +70,11 @@ impl PyIterProtocol for ParameterProperties {
 
 #[pyclass(name = "ParameterPropertiesIter")]
 pub struct PyParameterPropertiesIter {
-    v: std::vec::IntoIter<String>,
+    v: std::vec::IntoIter<(String, String)>,
 }
 
 impl PyParameterPropertiesIter {
-    pub fn new(v: Vec<String>) -> Self {
+    pub fn new(v: Vec<(String, String)>) -> Self {
         PyParameterPropertiesIter { v: v.into_iter() }
     }
 }
@@ -96,7 +85,7 @@ impl PyIterProtocol for PyParameterPropertiesIter {
         Ok(slf.into())
     }
 
-    fn __next__(mut slf: PyRefMut<Self>) -> PyResult<Option<String>> {
+    fn __next__(mut slf: PyRefMut<Self>) -> PyResult<Option<(String, String)>> {
         let slf = &mut *slf;
         Ok(slf.v.next())
     }
