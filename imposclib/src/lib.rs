@@ -22,7 +22,7 @@ fn imposclib(py: Python, m: &PyModule) -> PyResult<()> {
 
 #[pyfunction]
 fn symbol_properties() -> ParameterProperties {
-    ParameterProperties::from(vec![("frequency", "ω")])
+    ParameterProperties::from(vec![("frequency", "ω"),("offset", "σ"), ("phi", "φ")])
 }
 
 #[pyclass]
