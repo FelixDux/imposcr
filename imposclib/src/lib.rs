@@ -60,10 +60,10 @@ impl From<(&str, &str)> for PropertyPair {
 #[pyproto]
 impl PyIterProtocol for PropertyPair {
     fn __iter__(slf: PyRefMut<Self>) -> PyResult<PyObject> {
-        let props = &*slf;
+        let pair = &*slf;
         let gil = Python::acquire_gil();
         let py = gil.python();
-        let vals = vec![(String::from("Parameter"), props.parameter.clone()), (String::from("Property"), props.property.clone())];
+        let vals = vec![(String::from("Parameter"), pair.parameter.clone()), (String::from("Property"), pair.property.clone())];
         let iter = IntoPy::into_py(
             Py::new(py, PyPropertyPairIter::new(vals))?,
             py,
@@ -172,7 +172,7 @@ impl ParameterProperties {
     }
 
     fn add(&mut self, parameter: &str, property: &str) {
-        self.properties.entry(String::from(parameter)).or_insert(PropertyPair::from((property, parameter)));
+        self.properties.entry(String::from(parameter)).or_insert(PropertyPair::from((parameter, property)));
     }
 
     fn property(&self, parameter: &str) -> PropertyPair {
@@ -198,7 +198,7 @@ mod tests {
     #[test]
     fn can_access_parameter_properties() {
         let properties = ParameterProperties::from(vec![("frequency", "ω")]);
-        assert_eq!(properties.property("frequency"), String::from("ω"));
-        assert_eq!(properties.property("period"), String::from(""));
+        assert_eq!(properties.property("frequency").property, String::from("ω"));
+        assert_eq!(properties.property("period").property, String::from(""));
     }
 }
