@@ -17,4 +17,10 @@ def test_parameter_info_valid(category, expected):
     else:
         assert "Properties" in info
 
-        assert info["Properties"] == expected
+        properties = info["Properties"]
+        
+        for element in expected:
+            assert element in properties
+
+        for element in properties:
+            assert element in expected
