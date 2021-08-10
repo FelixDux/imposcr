@@ -2,17 +2,19 @@
 
 use pyo3::prelude::*;
 use pyo3::{PyIterProtocol, PyMappingProtocol};
+use pyo3::types::{PyDict, IntoPyDict};
 
 use std::convert::From;
 
 use std::collections::HashMap;
 
 #[pymodule]
-fn imposclib(py: Python, m: &PyModule) -> PyResult<()> {
+fn imposclib(_py: Python, m: &PyModule) -> PyResult<()> {
     // PyO3 aware function. All of our Python interfaces could be declared in a separate module.
     // Note that the `#[pyfn()]` annotation automatically converts the arguments from
     // Python objects to Rust values, and the Rust return value back into a Python object.
     // The `_py` argument represents that we're holding the GIL.
+    m.add_class::<PropertyPair>()?;
     m.add_class::<ParameterProperties>()?;
     
     m.add_function(wrap_pyfunction!(symbol_properties, m)?)?;
@@ -26,8 +28,77 @@ fn symbol_properties() -> ParameterProperties {
 }
 
 #[pyclass]
+#[derive(Clone, Default)]
+pub struct PropertyPair {
+    parameter: String,
+    property: String,
+}
+
+#[pymethods]
+impl PropertyPair {
+    #[new]
+    fn new() -> PyResult<Self>
+    {
+        Ok(PropertyPair
+        {
+            parameter: String::new(),
+            property: String::new(),
+        })
+    }
+
+}
+
+impl From<(&str, &str)> for PropertyPair {
+    fn from((parameter, property): (&str, &str)) -> PropertyPair {
+        PropertyPair {
+            parameter: String::from(parameter),
+            property: String::from(property),
+        }
+    }
+}
+
+#[pyproto]
+impl PyIterProtocol for PropertyPair {
+    fn __iter__(slf: PyRefMut<Self>) -> PyResult<PyObject> {
+        let props = &*slf;
+        let gil = Python::acquire_gil();
+        let py = gil.python();
+        let vals = vec![(String::from("Parameter"), props.parameter.clone()), (String::from("Property"), props.property.clone())];
+        let iter = IntoPy::into_py(
+            Py::new(py, PyPropertyPairIter::new(vals))?,
+            py,
+        );
+
+        Ok(iter)
+    }
+}
+
+#[pyclass(name = "PropertyPairIter")]
+pub struct PyPropertyPairIter {
+    v: std::vec::IntoIter<(String, String)>,
+}
+
+impl PyPropertyPairIter {
+    pub fn new(v: Vec<(String, String)>) -> Self {
+        PyPropertyPairIter { v: v.into_iter() }
+    }
+}
+
+#[pyproto]
+impl PyIterProtocol for PyPropertyPairIter {
+    fn __iter__(slf: PyRefMut<Self>) -> PyResult<Py<PyPropertyPairIter>> {
+        Ok(slf.into())
+    }
+
+    fn __next__(mut slf: PyRefMut<Self>) -> PyResult<Option<(String, String)>> {
+        let slf = &mut *slf;
+        Ok(slf.v.next())
+    }
+}
+
+#[pyclass]
 pub struct ParameterProperties {
-    properties: HashMap<String, String>,
+    properties: HashMap<String, PropertyPair>,
 }
 
 #[pymethods]
@@ -48,7 +119,7 @@ impl PyMappingProtocol for ParameterProperties {
         Ok(self.properties.len())
     }
 
-    fn __getitem__(&self, key: String) -> PyResult<String> {
+    fn __getitem__(&self, key: String) -> PyResult<PropertyPair> {
         Ok(self.properties.get(&key).cloned().unwrap_or_default())
     }
 }
@@ -60,7 +131,7 @@ impl PyIterProtocol for ParameterProperties {
         let gil = Python::acquire_gil();
         let py = gil.python();
         let iter = IntoPy::into_py(
-            Py::new(py, PyParameterPropertiesIter::new(props.properties.iter().map(|(k, v)| (k.to_owned(), v.to_owned())).collect()))?,
+            Py::new(py, PyParameterPropertiesIter::new(props.properties.iter().map(|(_, v)| v.to_owned()).collect()))?,
             py,
         );
 
@@ -70,11 +141,11 @@ impl PyIterProtocol for ParameterProperties {
 
 #[pyclass(name = "ParameterPropertiesIter")]
 pub struct PyParameterPropertiesIter {
-    v: std::vec::IntoIter<(String, String)>,
+    v: std::vec::IntoIter<PropertyPair>,
 }
 
 impl PyParameterPropertiesIter {
-    pub fn new(v: Vec<(String, String)>) -> Self {
+    pub fn new(v: Vec<PropertyPair>) -> Self {
         PyParameterPropertiesIter { v: v.into_iter() }
     }
 }
@@ -85,7 +156,7 @@ impl PyIterProtocol for PyParameterPropertiesIter {
         Ok(slf.into())
     }
 
-    fn __next__(mut slf: PyRefMut<Self>) -> PyResult<Option<(String, String)>> {
+    fn __next__(mut slf: PyRefMut<Self>) -> PyResult<Option<PropertyPair>> {
         let slf = &mut *slf;
         Ok(slf.v.next())
     }
@@ -101,11 +172,11 @@ impl ParameterProperties {
     }
 
     fn add(&mut self, parameter: &str, property: &str) {
-        self.properties.entry(String::from(parameter)).or_insert(String::from(property));
+        self.properties.entry(String::from(parameter)).or_insert(PropertyPair::from((property, parameter)));
     }
 
-    fn property(&self, parameter: &str) -> String {
-        self.properties.get(parameter).cloned().unwrap_or(String::from(""))
+    fn property(&self, parameter: &str) -> PropertyPair {
+        self.properties.get(parameter).cloned().unwrap_or(PropertyPair::from((parameter, "")))
     }
 }
 
