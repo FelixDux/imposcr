@@ -18,6 +18,7 @@ fn imposclib(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<ParameterProperties>()?;
     
     m.add_function(wrap_pyfunction!(symbol_properties, m)?)?;
+    m.add_function(wrap_pyfunction!(group_properties, m)?)?;
 
     Ok(())
 }
@@ -25,6 +26,11 @@ fn imposclib(_py: Python, m: &PyModule) -> PyResult<()> {
 #[pyfunction]
 fn symbol_properties() -> ParameterProperties {
     ParameterProperties::from(vec![("frequency", "ω"),("offset", "σ"), ("phi", "φ")])
+}
+
+#[pyfunction]
+fn group_properties() -> ParameterProperties {
+    ParameterProperties::from(vec![("frequency", "System parameters"), ("offset", "System parameters"), ("r", "System parameters"), ("phi", "Initial impact"), ("v", "Initial impact"), ("maxPeriods", "Control parameters"), ("numIterations", "Control parameters"), ("numPoints", "Control parameters")])
 }
 
 #[pyclass]
