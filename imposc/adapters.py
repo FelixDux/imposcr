@@ -1,10 +1,14 @@
-
+from imposclib.imposclib import ParameterProperties, symbol_properties, group_properties
 from typing import Optional, Dict
+
+
+def from_parameter_properties(properties: ParameterProperties) -> Dict:
+    return dict([("Properties", list([dict([field for field in record]) for record in properties]))])
 
 def parameter_info(category: str) -> Optional[Dict]:
     if category == "symbols":
-        return {"Properties":[{"Parameter":"frequency","Property":"ω"},{"Parameter":"offset","Property":"σ"},{"Parameter":"phi","Property":"φ"}]}
+        return from_parameter_properties(symbol_properties())
     elif category == "groups":
-        return {"Properties":[{"Parameter":"frequency","Property":"System parameters"},{"Parameter":"offset","Property":"System parameters"},{"Parameter":"r","Property":"System parameters"},{"Parameter":"phi","Property":"Initial impact"},{"Parameter":"v","Property":"Initial impact"},{"Parameter":"maxPeriods","Property":"Control parameters"},{"Parameter":"numIterations","Property":"Control parameters"},{"Parameter":"numPoints","Property":"Control parameters"}]}
+        return from_parameter_properties(group_properties())
     else:
         return None

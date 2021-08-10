@@ -35,6 +35,8 @@ Plan is as follows:
 - Deploy using elastic beanstalk
 - maybe have a CLI as well?
 
+(.venv) felixdux@Felix-Dux-MBP imposc % PYTHONPATH=".:../imposclib" python -m pytest
+
 ## Project Structure
 
 - `imposclib` (Rust project library)
