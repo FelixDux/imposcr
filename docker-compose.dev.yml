@@ -1,0 +1,8 @@
+version: '3'
+services: 
+  tests:
+    stdin_open: true
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    # command: ["python","--version"]

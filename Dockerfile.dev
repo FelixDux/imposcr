@@ -1,2 +1,8 @@
+# https://blog.logrocket.com/packaging-a-rust-web-service-using-docker/
+
+
 FROM konstin2/maturin
 
+COPY . .
+
+WORKDIR ./imposclib
