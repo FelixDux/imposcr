@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from adapters import parameter_info
 
-app = FastAPI()
+app = FastAPI(title="Impact Oscillator") # TODO: configure info and info endpoint from file
 
 
 @app.get("/")
