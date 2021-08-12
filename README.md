@@ -27,13 +27,13 @@ Various other interesting plots will come later, time permitting, including:
 Plan is as follows:
 
 - Business logic in Rust
-- Wrap the Rust in Python using FFI, probably with [rustpy](https://github.com/iduartgomez/rustypy) or starting with the pattern in [this article](https://depth-first.com/articles/2020/08/03/wrapping-rust-types-as-python-classes/) - **or consider [PyO3](https://pyo3.rs/v0.14.1/), with [maturin](https://crates.io/crates/maturin) for distribution**.
-- Use [FastAPI](https://fastapi.tiangolo.com) to provide a Web API
+- Wrap the Rust in Python using FFI, probably with [rustpy](https://github.com/iduartgomez/rustypy) or starting with the pattern in [this article](https://depth-first.com/articles/2020/08/03/wrapping-rust-types-as-python-classes/) - **or consider [PyO3](https://pyo3.rs/v0.14.1/), with [maturin](https://crates.io/crates/maturin) for distribution**. (Also look [here](https://totaltrash.xyz/posts/blog/rust-python.html))
+- Use [FastAPI](https://fastapi.tiangolo.com) to provide a Web API (use [pipenv](https://pipenv.kennethreitz.org/en/latest/) instead of venv?)
 - Serve an SPA (borrowed from imposcg) from /static endpoint and redirect the root to this
 - just serve up data from rust and plot either in Python or in the SPA in js
 - Put it inside Docker
 - Deploy using elastic beanstalk
-- maybe have a CLI as well?
+- maybe have a CLI as well (using e.g. [Typer](https://typer.tiangolo.com/) or [Click](https://click.palletsprojects.com/en/8.0.x/))?
 
 (.venv) felixdux@Felix-Dux-MBP imposc % PYTHONPATH=".:../imposclib" python -m pytest
 
