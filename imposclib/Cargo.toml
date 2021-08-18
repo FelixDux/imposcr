@@ -5,9 +5,8 @@ edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-# [dependencies]
-# libc = "*"
-# maturin = "0.11.2"
+[dependencies]
+maturin = "0.11.2"
 
 [lib]
 crate-type = ["cdylib"]
@@ -15,3 +14,5 @@ crate-type = ["cdylib"]
 [dependencies.pyo3]
 version = "0.14.1"
 features = ["extension-module"]
+
+cargo-features = ["profile-overrides"]

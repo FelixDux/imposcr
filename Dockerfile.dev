@@ -1,8 +1,35 @@
-# https://blog.logrocket.com/packaging-a-rust-web-service-using-docker/
+# Use latest because maturin requires a nightly build
+FROM rust:latest as builder
+WORKDIR /imposclib
+COPY ./imposclib .
+RUN cargo build
+
+CMD [ "cargo", "test" ]
 
 
-FROM konstin2/maturin
+# RUN docker run --rm -v $(pwd):/io konstin2/maturin build --release
+FROM konstin2/maturin as maturin
+COPY --from=builder /imposclib /io
+WORKDIR /io
+RUN /usr/bin/maturin build --release --strip
+# ENTRYPOINT ["/usr/bin/maturin"]
+# CMD ["build", "--release", "--strip"]
+# CMD ["develop", "--release", "--strip"]
+CMD ["develop", "--help"]
 
-COPY . .
+FROM python:3.9-slim-buster
+COPY --from=maturin /io/target/release /imposclib
 
-WORKDIR ./imposclib
+WORKDIR /imposc
+
+COPY ./imposc .
+
+RUN python -m pip install -r requirements-dev.txt
+
+# RUN python -m pip install /imposclib
+
+ENV PYTHONPATH=".:/imposclib"
+
+# # ENTRYPOINT [ "/imposclib/imposclib/.venv/bin/python", "-m" ]
+
+CMD [ "uvicorn", "main:app", "--reload" ]
