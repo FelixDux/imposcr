@@ -10,7 +10,7 @@ WORKDIR /imposc
 
 COPY ./imposc .
 
-RUN python -m pip install -r requirements-dev.txt
+RUN python -m pip install -r requirements.txt
 
 RUN ls /imposclib/* |xargs python -m pip install 
 
@@ -18,4 +18,4 @@ ENV PYTHONPATH="/imposc"
 
 EXPOSE 8000
 
-CMD [ "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload" ]
+CMD [ "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000" ]
