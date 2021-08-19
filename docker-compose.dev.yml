@@ -1,19 +1,11 @@
 version: '3'
 services: 
-  test_rust:
-    stdin_open: true
-    build: 
-      context: ./imposclib
-      dockerfile: Dockerfile.dev
-    volumes: 
-      - ./imposclib
   test_python:
     stdin_open: true
     build:
       context: .
       dockerfile: Dockerfile.dev
     volumes: 
-      - ./imposc
-    command: ["pytest"]
-    # ports: 
-    #   - 8000:8000
+      - ./imposc:/imposc
+    ports: 
+      - 8000:8000

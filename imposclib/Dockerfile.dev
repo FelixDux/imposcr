@@ -1,8 +1,7 @@
 # Use latest because maturin requires a nightly build
 FROM rust:latest as builder
-WORKDIR /
+WORKDIR /imposclib
 COPY . .
-# RUN cargo build
 
 CMD [ "cargo", "test" ]
 
