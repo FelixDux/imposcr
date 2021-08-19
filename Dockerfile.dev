@@ -1,16 +1,7 @@
-# Use latest because maturin requires a nightly build
-FROM rust:latest as builder
-WORKDIR /imposclib
-COPY ./imposclib .
-RUN cargo build
-
-CMD [ "cargo", "test" ]
-
-
-# RUN docker run --rm -v $(pwd):/io konstin2/maturin build --release
 FROM konstin2/maturin as maturin
-COPY --from=builder /imposclib /io
+# COPY --from=builder /imposclib /io
 WORKDIR /io
+COPY ./imposclib .
 RUN /usr/bin/maturin build --interpreter python3.9 --release --strip
 # ENTRYPOINT ["/usr/bin/maturin"]
 # CMD ["build", "--release", "--strip"]
