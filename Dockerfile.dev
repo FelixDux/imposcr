@@ -11,14 +11,14 @@ CMD [ "cargo", "test" ]
 FROM konstin2/maturin as maturin
 COPY --from=builder /imposclib /io
 WORKDIR /io
-RUN /usr/bin/maturin build --release --strip
+RUN /usr/bin/maturin build --interpreter python3.9 --release --strip
 # ENTRYPOINT ["/usr/bin/maturin"]
 # CMD ["build", "--release", "--strip"]
 # CMD ["develop", "--release", "--strip"]
 CMD ["develop", "--help"]
 
 FROM python:3.9-slim-buster
-COPY --from=maturin /io/target/release /imposclib
+COPY --from=maturin /io/target/wheels /imposclib
 
 WORKDIR /imposc
 
@@ -26,9 +26,9 @@ COPY ./imposc .
 
 RUN python -m pip install -r requirements-dev.txt
 
-# RUN python -m pip install /imposclib
+RUN ls /imposclib/* |xargs python -m pip install 
 
-ENV PYTHONPATH=".:/imposclib"
+ENV PYTHONPATH="/imposc"
 
 # # ENTRYPOINT [ "/imposclib/imposclib/.venv/bin/python", "-m" ]
 
