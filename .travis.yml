@@ -1,0 +1,16 @@
+language: generic
+sudo: required
+services:
+  - docker
+
+script:
+  - docker-compose -f docker-compose.test.yml up
+
+before_deploy:
+  - docker build -t happyleader/imposcr ./imposc
+
+deploy:
+  provider: script
+  script: bash docker_push
+  on:
+    branch: main
