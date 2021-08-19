@@ -27,7 +27,7 @@ Various other interesting plots will come later, time permitting, including:
 Plan is as follows:
 
 - Business logic in Rust
-- Wrap the Rust in Python using FFI, probably with [rustpy](https://github.com/iduartgomez/rustypy) or starting with the pattern in [this article](https://depth-first.com/articles/2020/08/03/wrapping-rust-types-as-python-classes/) - **or consider [PyO3](https://pyo3.rs/v0.14.1/), with [maturin](https://crates.io/crates/maturin) for distribution**. (Also look [here](https://totaltrash.xyz/posts/blog/rust-python.html))
+- Wrap the Rust in Python using FFI, using [PyO3](https://pyo3.rs/v0.14.1/), with [maturin](https://crates.io/crates/maturin) for distribution.
 - Use [FastAPI](https://fastapi.tiangolo.com) to provide a Web API (use [pipenv](https://pipenv.kennethreitz.org/en/latest/) instead of venv?)
 - Serve an SPA (borrowed from imposcg) from /static endpoint and redirect the root to this
 - just serve up data from rust and plot either in Python or in the SPA in js
@@ -53,7 +53,6 @@ Plan is as follows:
     - `src\`
     - `static\`
     - `test\`
-    - `requirements-common.txt`
     - `requirements.txt`
     - `requirements-dev.txt`
 
@@ -62,20 +61,6 @@ Later on consider adding:
 - `imposc-cli` (Rust CLI project)
     - `src`
         - `main.rs`
-
-Both Python projects will include the following in `requirements.txt`:
-```
-..\rust-project-folder-name\target\release\imposclib
--r requirements-common.txt
-```
-
-and the following in `requirements-dev.txt`:
-```
-..\rust-project-folder-name\target\debug\imposclib
--r requirements-common.txt
-pytest
-<other dev/test dependencies>
-```
 
 ## Vertical Slices
 
@@ -108,4 +93,4 @@ So ... test criteria look like:
 
 ## Installing and Running
 
-TBD
+The simplest way to get going is to use the production docker image. `docker-compose up` will launch the Web application and serve it to http://localhost:8000.
