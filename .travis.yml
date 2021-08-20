@@ -20,7 +20,7 @@ cache:
   pip: true
 before_install:
   # Upgrade pip
-  - sudo python -m pip install --quiet --upgrade pip
+  - sudo python3.9 -m pip install --quiet --upgrade pip
   - python3.9 -m pip install maturin
 
 before_script:
