@@ -3,17 +3,23 @@ sudo: required
 services:
   - docker
 
-addons:
-  apt:
-    sources:
-      - deadsnakes # source required so it finds the package definition below
-    packages:
-      - python3.9
-      
+# addons:
+#   apt:
+#     sources:
+#       - deadsnakes # source required so it finds the package definition below
+#     packages:
+#       - python3.9
+
 rust:
   - nightly
 
 cargo: cargo
+
+cache:
+  pip: true
+before_install:
+  # Upgrade pip
+  - python -m pip install --quiet --upgrade pip
 
 script:
   - python3 --version
