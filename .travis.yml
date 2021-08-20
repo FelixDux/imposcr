@@ -13,6 +13,8 @@ addons:
 
 rust:
   - nightly
+  
+cache: cargo
 
 cargo: cargo
 
