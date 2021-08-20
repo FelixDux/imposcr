@@ -7,7 +7,7 @@ services:
 addons:
   apt:
     sources:
-      - deadsnakes # source required so it finds the package definition below
+      - deadsnakes 
     packages:
       - python3.9
 
@@ -21,10 +21,14 @@ cache:
 before_install:
   # Upgrade pip
   - sudo python -m pip install --quiet --upgrade pip
+  - python3.9 -m pip install maturin
+
+before_script:
+  - cd imposclib && maturin build --interpreter python3.9 --release --strip cd ..
 
 script:
-  - python3.9 --version
   - cd imposclib && cargo test && cd ..
+  - cd imposc && python3.9 -m pip install -r requirements-dev.txt && python3.9 -m pytest
   # - docker-compose -f docker-compose.test.yml up
 
 # before_deploy:
