@@ -10,7 +10,6 @@ addons:
       - deadsnakes 
     packages:
       - python3.9
-      - pip
 
 rust:
   - nightly
@@ -19,9 +18,9 @@ cargo: cargo
 
 cache:
   pip: true
+  
 before_install:
-  # Upgrade pip
-  - sudo python3.9 -m pip install --quiet --upgrade pip
+  - python3.9 -m ensurepip --upgrade
   - python3.9 -m pip install maturin
 
 before_script:
