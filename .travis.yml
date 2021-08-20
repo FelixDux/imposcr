@@ -1,3 +1,4 @@
+dist: bionic
 language: rust
 sudo: required
 services:
@@ -17,9 +18,9 @@ cargo: cargo
 
 cache:
   pip: true
-# before_install:
-#   # Upgrade pip
-#   - python -m pip install --quiet --upgrade pip
+before_install:
+  # Upgrade pip
+  - sudo python -m pip install --quiet --upgrade pip
 
 script:
   - python3 --version
