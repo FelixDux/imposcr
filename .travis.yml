@@ -4,12 +4,12 @@ sudo: required
 services:
   - docker
 
-# addons:
-#   apt:
-#     sources:
-#       - deadsnakes # source required so it finds the package definition below
-#     packages:
-#       - python3.9
+addons:
+  apt:
+    sources:
+      - deadsnakes # source required so it finds the package definition below
+    packages:
+      - python3.9
 
 rust:
   - nightly
