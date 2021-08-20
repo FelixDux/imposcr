@@ -1,5 +1,5 @@
 #!/bin/bash
 
-docker build -t happyleader/imposcr ./imposc
+docker build -t "$DOCKER_ID"/imposcr ./imposc
 echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
-docker push happyleader/imposcr
+docker push "$DOCKER_ID"/imposcr

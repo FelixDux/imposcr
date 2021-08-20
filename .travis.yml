@@ -9,14 +9,15 @@ rust:
 cargo: cargo
 
 script:
-  - cd imposclib && cargo test && cd ..
+  # - cd imposclib && cargo test && cd ..
+  - python3 --version
   - docker-compose -f docker-compose.test.yml up
 
-before_deploy:
-  - docker build -t happyleader/imposcr ./imposc
+# before_deploy:
+#   - docker build -t happyleader/imposcr ./imposc
 
-deploy:
-  provider: script
-  script: bash docker_push
-  on:
-    branch: master
+# deploy:
+#   provider: script
+#   script: bash docker_push
+#   on:
+#     branch: master
