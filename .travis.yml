@@ -10,6 +10,7 @@ addons:
       - deadsnakes 
     packages:
       - python3.9
+      - pip
 
 rust:
   - nightly
