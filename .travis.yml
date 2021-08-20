@@ -23,8 +23,8 @@ before_install:
   - sudo python -m pip install --quiet --upgrade pip
 
 script:
-  - python3 --version
-  # - cd imposclib && cargo test && cd ..
+  - python3.9 --version
+  - cd imposclib && cargo test && cd ..
   # - docker-compose -f docker-compose.test.yml up
 
 # before_deploy:
