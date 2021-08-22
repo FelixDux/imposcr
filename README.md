@@ -91,6 +91,13 @@ So ... test criteria look like:
 - https://michael-f-bryan.github.io/rust-ffi-guide/
 - https://github.com/rapodaca/hash_set/
 
+## CI/CD is Slow!
+https://faun.pub/optimizing-ci-cd-pipeline-for-rust-projects-gitlab-docker-98df64ae3bc4
+https://www.lpalmieri.com/posts/fast-rust-docker-builds/
+https://kflansburg.com/posts/rust-continuous-delivery/
+https://readrust.net/devops-and-deployment
+
+
 ## Installing and Running
 
 The simplest way to get going is to use the production docker image. `docker-compose up` will launch the Web application and serve it to http://localhost:8000.

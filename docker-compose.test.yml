@@ -1,12 +1,12 @@
 version: '3'
 services: 
-  # test_rust:
-  #   stdin_open: true
-  #   build: 
-  #     context: ./imposclib
-  #     dockerfile: Dockerfile.dev
-  #   volumes: 
-  #     - ./imposclib:/imposclib
+  test_rust:
+    stdin_open: true
+    build: 
+      context: ./imposclib
+      dockerfile: Dockerfile.dev
+    volumes: 
+      - ./imposclib:/imposclib
   test_python:
     stdin_open: true
     build:
