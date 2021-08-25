@@ -37,7 +37,7 @@ cargo: cargo
 #   - sudo python3.9 -m pip install --quiet --upgrade pip
 
 install:
-  - python3.9 -m pip install --user maturin
+  # - python3.9 -m pip install --user maturin
   - cd ./imposc && python3.9 -m pip install --user -r requirements-dev.txt
 
 script:
