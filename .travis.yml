@@ -14,7 +14,19 @@ addons:
 rust:
   - nightly
   
-cache: cargo
+# cache: cargo
+# https://bheisler.github.io/post/efficient-use-of-travis-ci-cache-for-rust/
+
+# https://levans.fr/rust_travis_cache.html
+# Need to cache the whole `.cargo` directory to keep .crates.toml for
+# cargo-update to work
+cache:
+  directories:
+    - /home/imposclib/travis/.cargo
+
+# But don't cache the cargo registry
+before_cache:
+  - rm -rf /home/travis/.cargo/registry
 
 cargo: cargo
 
