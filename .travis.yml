@@ -22,11 +22,11 @@ rust:
 # cargo-update to work
 cache:
   directories:
-    - /home/imposclib/travis/.cargo
+    - /home/travis/.cargo
 
 # But don't cache the cargo registry
 before_cache:
-  - rm -rf /home/imposclib/travis/.cargo/registry
+  - rm -rf /home/travis/.cargo/registry
 
 cargo: cargo
 
