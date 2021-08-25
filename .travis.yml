@@ -32,9 +32,9 @@ before_cache:
 
 cargo: cargo
 
-before_install:
-  # Upgrade pip
-  - sudo python3.9 -m pip install --quiet --upgrade pip
+# before_install:
+#   # Upgrade pip
+#   - sudo python3.9 -m pip install --quiet --upgrade pip
 
 install:
   - python3.9 -m pip install --user maturin
