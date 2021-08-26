@@ -5,7 +5,7 @@ function getFromAPI(path, callback) {
     .catch(error => console.log(`${error}`));
 }
 
-const getAPIInfo = callback => getFromAPI("/swagger/doc.json", callback);
+const getAPIInfo = callback => getFromAPI("/openapi.json", callback);
 
 const getParameterSymbols = callback => getFromAPI("/api/parameter-info/symbols", callback);
 

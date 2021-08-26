@@ -298,7 +298,7 @@ class PathsHolder {
 
         extractFromAPIInfo(apiData, 'paths', setter);
 
-        this.paths.push(new InfoSelector("/maths.html", "Mathematical Background", "An overview of the mathematical model, how it behaves and what the parameters do."));
+        this.paths.push(new InfoSelector("./maths.html", "Mathematical Background", "An overview of the mathematical model, how it behaves and what the parameters do."));
     }
 
     navHtml() {

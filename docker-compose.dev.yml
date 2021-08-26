@@ -1,6 +1,6 @@
 version: '3'
 services: 
-  test_python:
+  run_service:
     stdin_open: true
     build:
       context: .
