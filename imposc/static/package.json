@@ -1,0 +1,15 @@
+{
+  "name": "static",
+  "version": "1.0.0",
+  "description": "User interface for impact oscillator API",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "Felix Dux",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/preset-env": "^7.14.8",
+    "jest": "^27.0.6"
+  }
+}

@@ -15,3 +15,12 @@ services:
     volumes: 
       - ./imposc:/imposc
     command: ["pytest"]
+  ui-tests:
+    stdin_open: true
+    build:
+      context: ./imposc/static
+      dockerfile: Dockerfile.dev
+    volumes:
+      - /app/node_modules
+      - ./imposc/static:/app
+    command: ["npm", "test"]

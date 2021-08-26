@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Mathematical Background</title>
+  <link rel="stylesheet" href="./maths.css">
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Mathematical Background</h1>
+</header>
+<p>I completed my PhD in 1992 and have not followed academic developments since that time, so the work described here is probably outdated and makes no reference to more recent research.</p>
+<p>Most of my thesis was devoted to a simple mathematical model comprising a forced harmonic oscillator whose motion is constrained by a hard obstacle, from which it rebounds instantaneously:</p>
+<figure>Hi 
+<img src="eqs/eq1.png" /><figcaption aria-hidden="true"></figcaption>
+</figure>
+<figure>
+<img src="eqs/eq2.png" /><figcaption aria-hidden="true"></figcaption>
+</figure>
+<p>where <img src="eqs/eq3.png" /></p>
+<p>This can be nondimensionalised as follows:</p>
+<figure>
+<img src="eqs/eq4.png" /><figcaption aria-hidden="true"></figcaption>
+</figure>
+<p>which gives:</p>
+<figure>
+<img src="eqs/eq5.png" /><figcaption aria-hidden="true"></figcaption>
+</figure>
+<figure>
+<img src="eqs/eq6.png" /><figcaption aria-hidden="true"></figcaption>
+</figure>
+<p>where</p>
+<figure>
+<img src="eqs/eq7.png" /><figcaption aria-hidden="true"></figcaption>
+</figure>
+<p>Because a coefficient of restitution of less than 1 is sufficient to introduce dissipation into the system, for most of my thesis I simplified further by setting the damping coefficient <img src="eqs/eq8.png" /> to zero, so that the problem reduces to:</p>
+<figure>
+<img src="eqs/eq9.png" /><figcaption aria-hidden="true"></figcaption>
+</figure>
+<figure>
+<img src="eqs/eq10.png" /><figcaption aria-hidden="true"></figcaption>
+</figure>
+<p>The impact introduces a discontinuity into the system which makes it strongly nonlinear, so that it exhibits many of the complex behaviours associated with nonlinear dynamical systems.</p>
+<h3 id="the-impact-map">The Impact Map</h3>
+<p>A <em>Poincaré map</em> is a useful way of reducing a continuous dynamical system to a discrete system with one fewer dimensions. In this case the form of the problem naturally induces a map - which we call the <em>impact map</em> - which takes the phase (time modulo the forcing period) and velocity at one impact to the phase and velocity at the next impact. What makes it interesting is that it does not strictly conform to the textbook definition of a Poincaré map, because when impacts occur with zero velocity the trajectory in phase space is tangential to the surface <img src="eqs/eq11.png" />. At points which map to zero-velocity impacts, the impact map is not only discontinuous but singular. This underlies many of the complex dynamics which are observed for some parameter ranges.</p>
+<p>The domain (and range) of the impact map, the <em>impact surface</em>, is geometrically an infinite half-cylinder, since the impact velocities range over <img src="eqs/eq12.png" />, while the phase ranges over <img src="eqs/eqg1.gif" />.</p>
+<h3 id="periodic-orbits">Periodic Orbits</h3>
+<p>Periodic motions can be classified by labelling them with two numbers, the number of impacts in a cycle and the number of forcing periods, so that a (<em>m</em>, <em>n</em>) orbit repeats itself after <em>m</em> impacts and <em>n</em> forcing cycles. The simplest of these are (1, <em>n</em>) orbits, which correspond to fixed points of the impact map. These can be extensively studied analytically and formulas can be obtained for the impact velocity <em>V<sub>n</sub></em> as the parameters <img src="eqs/eq17.png" />, <img src="eqs/eq16.png" /> and <em>r</em> are varied.</p>
+<p>This reveals that, as <img src="eqs/eq15.png" /> is varied while <img src="eqs/eq17.png" /> and <em>r</em> are held fixed, the <em>V<sub>n</sub></em>-response curve is an ellipse (or rather half an ellipse as negative <em>V<sub>n</sub></em> is of no interest), centred on the origin. As <img src="eqs/eq18.png" /> is varied, this ellipse rotates, so that its major axis is vertical for <img src="eqs/eq19.png" />, is tilted into the negative <img src="eqs/eq20.png" /> quadrant (for positive <em>V<sub>n</sub></em>) for <img src="eqs/eq21.png" /> and into the positive <img src="eqs/eq22.png" /> quadrant for <img src="eqs/eq23.png" />. In the tilted cases, the lower branch of the half-ellipse always corresponds to dynamically unstable orbits. The point where the upper and lower branches meet corresponds to a <em>saddle-node</em> or <em>fold</em> bifurcation. As we vary <img src="eqs/eq24.png" /> away from this point, the orbit corresponding to the upper branch will remain stable until either (i) it loses stability to a supercritical period-doubling bifurcation and is replaced by a (2, 2<em>n</em>) orbit or (ii) it is destroyed by the occurrence of an intervening impact, which makes the analytically-derived (1, <em>n</em>) orbit unphysical. Case (i) is typically the prelude to a period-doubling cascade of a kind familiar to anyone who has studied chaotic dynamical systems.</p>
+<p>It turns out that, at least for small values of <img src="eqs/eq24.png" />, forcing frequencies near the ‘resonant’ values <img src="eqs/eq26.png" /> are associated with comparatively simple dynamics dominated by globally attracting (1, <em>n</em>) orbits, while the intervening regions of parameter space are characterised by much more complex behaviour, including chaotic attractors and multiple competing periodic orbits.</p>
+<h3 id="grazing">‘Grazing’</h3>
+<p>My supervisor, <a href="https://www.linkedin.com/in/chris-budd-obe-49a6b955/">Chris Budd</a>, coined the term ‘grazing’ for a kind of bifurcation in which a periodic orbit is destroyed by the occurrence of an intervening impact. At the bifurcation point, this intervening impact has zero velocity, hence the term ‘grazing’. This phenomenon can be investigated in terms of the geometry of the impact map by studying the set <em>S</em> of impact points which map to a zero velocity impact. This has the form of a ‘branched manifold’, i.e. a set of curves of codimension 1 which branch off each other at various points. If one draws a line transverse to this manifold and observes how the image of the impact map <img src="eqs/eq27.png" /> varies as one moves along the line, one finds that, as one crosses <em>S</em> from one direction (the <em>‘non-impact side’</em>) <em>v<sub>1</sub></em> drops discontinuously to zero, while as one approaches <em>S</em> from the other direction (the <em>‘impact side’</em>) it drops continuously to zero but at a rate which <img src="eqs/eq28.png" /> as <img src="eqs/eq29.png" />. This results in a strong local distortion of the phase flow. It also means that much of the local dynamics can be understood by reference to a one-dimensional map.</p>
+<p>The occurrence of intervening low-velocity impacts combined with the fact that, on the <em>non-impact side</em>, the dynamics continues to behave as if there were no intervening impact, helps to explain why for parameter values in the neighbourhood of a ‘grazing’ bifurcation of a stable (1, <em>n</em>) orbit, one often observes the appearance of competing (3, 3<em>n</em>) orbits.</p>
+<p>A chapter of my thesis was devoted to a particularly striking instance of ‘grazing’, which occurs in the resonant case <img src="eqs/eq30.png" />, which has certain simplifying features which make it particularly instructive.</p>
+<h3 id="sticking-and-chatter">‘Sticking’ and ‘Chatter’</h3>
+<p>‘Grazing’ occurs when a point <img src="eqs/eq31.png" /> on the impact surface corresponds to a local maximum of the motion <em>x</em>(<em>t</em>). In general, there will also be a range of points <img src="eqs/eq32.png" /> for which the acceleration is positive and so the mass will be temporarily held motionless against the obstacle. If a low velocity impact occurs near this region, there will be an infinite sequence of low-velocity impacts converging in a finite time on a zero-velocity impact. This corresponds physically to a low-energy juddering of the mass against the obstacle. Our numerical simulation has to detect this behaviour and suitably truncate the infinite sequence. This behaviour can occur as part of a periodic orbit, in which case we label it <img src="eqs/eq33.png" />.</p>
+<h3 id="references">References</h3>
+<ul>
+<li>F Dux “The Dynamics of Impact Oscillators”. PhD Thesis (1992). University of Bristol.</li>
+<li><a href="https://iopscience.iop.org/article/10.1088/0951-7715/7/4/007/meta">C Budd and F Dux “Intermittency in Impact Oscillators Close to Resonance”. Nonlinearity 7 (1994) 1191-1224</a></li>
+<li><a href="https://royalsocietypublishing.org/doi/10.1098/rsta.1994.0049">C Budd and F Dux “Chattering and Related Behaviour in Impact Oscillators”. Phil, Trans. R. Soc. Lond. A (1994) 347, 365-389</a></li>
+<li><a href="https://www.sciencedirect.com/science/article/abs/pii/S0022460X8570329X">C Budd, F Dux and A Cliffe “The Effect of Frequency and Clearance Variations on Single-Degree-Of-Freedom Impact Oscillators”. Journal of Sound and Vibration (1995) 184(3), 475-502</a></li>
+</ul>
+</body>
+</html>

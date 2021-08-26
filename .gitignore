@@ -16,3 +16,4 @@ __pycache__
 *.a
 *.o
 node_modules/**
+imposc/static/node_modules/*
