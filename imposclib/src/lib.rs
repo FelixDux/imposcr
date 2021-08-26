@@ -17,10 +17,16 @@ fn imposclib(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<PropertyPair>()?;
     m.add_class::<ParameterProperties>()?;
     
+    m.add_function(wrap_pyfunction!(app_info, m)?)?;
     m.add_function(wrap_pyfunction!(symbol_properties, m)?)?;
     m.add_function(wrap_pyfunction!(group_properties, m)?)?;
 
     Ok(())
+}
+
+#[pyfunction]
+fn app_info() -> ParameterProperties {
+    ParameterProperties::from(vec![("title", "Impact Oscillator"),("version", "0.0.1"), ("description", "Analysis and simulation of a simple vibro-impact model developed in Rust, with a Python wrapper - principally as a learning exercise")])
 }
 
 #[pyfunction]
