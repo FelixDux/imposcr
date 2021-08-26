@@ -1,0 +1,56 @@
+dist: bionic
+language: rust
+sudo: required
+services:
+  - docker
+
+addons:
+  apt:
+    sources:
+      - deadsnakes 
+    packages:
+      - python3.9
+      - python3-pip
+
+rust:
+  - nightly
+  
+# cache: cargo
+# https://bheisler.github.io/post/efficient-use-of-travis-ci-cache-for-rust/
+
+# https://levans.fr/rust_travis_cache.html
+# Need to cache the whole `.cargo` directory to keep .crates.toml for
+# cargo-update to work
+cache:
+  pip: true
+  directories:
+    - /home/travis/.cargo
+
+# But don't cache the cargo registry
+before_cache:
+  - rm -rf /home/travis/.cargo/registry
+
+cargo: cargo
+
+# before_install:
+#   # Upgrade pip
+#   - sudo python3.9 -m pip install --quiet --upgrade pip
+
+install:
+  # - python3.9 -m pip install --user maturin
+  - cd ./imposc && python3.9 -m pip install --user -r requirements-dev.txt
+
+script:
+  - cd imposclib && cargo test && cd ..
+  - cd imposclib && maturin build --interpreter python3.9 && cd ..
+  - cd ./imposc && python3.9 -m pytest
+  # - docker-compose -f docker-compose.test.yml up
+
+# before_deploy:
+#   - docker build -t happyleader/imposcr ./imposc
+
+# deploy:
+#   provider: script
+#   script: bash docker_push
+#   on:
+#     branch: master

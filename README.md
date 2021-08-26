@@ -27,52 +27,40 @@ Various other interesting plots will come later, time permitting, including:
 Plan is as follows:
 
 - Business logic in Rust
-- Wrap the Rust in Python using FFI, probably with [rustpy](https://github.com/iduartgomez/rustypy) or starting with the pattern in [this article](https://depth-first.com/articles/2020/08/03/wrapping-rust-types-as-python-classes/).
-- Use FastAPI and Typer to provide a Web API and a CLI respectively
+- Wrap the Rust in Python using FFI, using [PyO3](https://pyo3.rs/v0.14.1/), with [maturin](https://crates.io/crates/maturin) for distribution.
+- Use [FastAPI](https://fastapi.tiangolo.com) to provide a Web API (use [pipenv](https://pipenv.kennethreitz.org/en/latest/) instead of venv?)
 - Serve an SPA (borrowed from imposcg) from /static endpoint and redirect the root to this
 - just serve up data from rust and plot either in Python or in the SPA in js
 - Put it inside Docker
 - Deploy using elastic beanstalk
+- maybe have a CLI as well (using e.g. [Typer](https://typer.tiangolo.com/) or [Click](https://click.palletsprojects.com/en/8.0.x/))?
+
+(.venv) felixdux@Felix-Dux-MBP imposc % PYTHONPATH=".:../imposclib" python -m pytest
 
 ## Project Structure
 
-- Rust project
+- `imposclib` (Rust project library)
     - `src`
         - subfolders with business logic
         - `lib.rs`
-        - `imposcr\`
+        - `imposclib\`
             - `__init__.py`
             - `config.py`
             - `imposcr.py`
-- FastAPI Project
+    - `tests\`
+- (`imposc`) FastAPI Project
     - `.venv\`
     - `src\`
     - `static\`
     - `test\`
-    - `requirements-common.txt`
-    - `requirements.txt`
-    - `requirements-dev.txt`
-- Typer Project
-    - `.venv\`
-    - `src\`
-    - `test\`
-    - `requirements-common.txt`
     - `requirements.txt`
     - `requirements-dev.txt`
 
-Both Python projects will include the following in `requirements.txt`:
-```
-..\rust-project-folder-name\target\release\imposcr
--r requirements-common.txt
-```
+Later on consider adding:
 
-and the following in `requirements-dev.txt`:
-```
-..\rust-project-folder-name\target\debug\imposcr
--r requirements-common.txt
-pytest
-<other dev/test dependencies>
-```
+- `imposc-cli` (Rust CLI project)
+    - `src`
+        - `main.rs`
 
 ## Vertical Slices
 
@@ -103,9 +91,13 @@ So ... test criteria look like:
 - https://michael-f-bryan.github.io/rust-ffi-guide/
 - https://github.com/rapodaca/hash_set/
 
-### PS
-Imposccpp tried a similar trick wrapping C++ in Python but the SPA is served separately. Try using K8s to orchestrate this and deploy it to GCloud?
+## CI/CD is Slow!
+https://faun.pub/optimizing-ci-cd-pipeline-for-rust-projects-gitlab-docker-98df64ae3bc4
+https://www.lpalmieri.com/posts/fast-rust-docker-builds/
+https://kflansburg.com/posts/rust-continuous-delivery/
+https://readrust.net/devops-and-deployment
+
 
 ## Installing and Running
 
-TBD
+The simplest way to get going is to use the production docker image. `docker-compose up` will launch the Web application and serve it to http://localhost:8000.

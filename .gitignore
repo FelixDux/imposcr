@@ -1,7 +1,18 @@
-/target
+imposclib/target
+
+# The Rust project is a library so ignore this
+Cargo.lock
+
 *.swp
-*.png
 *.log
-TODO.txt
-errors/
-errorfile.txt
+
+*.pyc
+__pycache__
+
+**/.venv/
+**/libs
+
+*.so
+*.a
+*.o
+node_modules/**

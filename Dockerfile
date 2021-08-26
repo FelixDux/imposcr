@@ -1,0 +1,41 @@
+# Use latest because maturin requires a nightly build
+FROM rust:latest as planner
+
+WORKDIR /imposclib
+RUN cargo install cargo-chef 
+COPY ./imposclib .
+RUN cargo chef prepare  --recipe-path recipe.json
+
+FROM rust:latest as cacher
+WORKDIR /imposclib
+RUN cargo install cargo-chef
+COPY --from=planner /imposclib/recipe.json recipe.json
+RUN cargo chef cook --release --recipe-path recipe.json
+
+FROM konstin2/maturin as maturin
+WORKDIR /io
+
+COPY ./imposclib .
+
+# Copy over the cached dependencies
+COPY --from=cacher /imposclib/target target
+COPY --from=cacher /usr/local/cargo /usr/local/cargo
+
+RUN /usr/bin/maturin build --interpreter python3.9 --release --strip
+
+FROM python:3.9-slim-buster
+COPY --from=maturin /io/target/wheels /imposclib
+
+WORKDIR /imposc
+
+COPY ./imposc .
+
+RUN python -m pip install -r requirements.txt
+
+RUN ls /imposclib/* |xargs python -m pip install 
+
+ENV PYTHONPATH="/imposc"
+
+EXPOSE 8000
+
+CMD [ "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000" ]

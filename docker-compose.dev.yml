@@ -1,0 +1,11 @@
+version: '3'
+services: 
+  test_python:
+    stdin_open: true
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes: 
+      - ./imposc:/imposc
+    ports: 
+      - 8000:8000

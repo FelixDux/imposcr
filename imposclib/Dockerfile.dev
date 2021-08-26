@@ -1,0 +1,33 @@
+# Use latest because maturin requires a nightly build
+FROM rust:latest as planner
+
+WORKDIR /imposclib
+# We only pay the installation cost once, 
+# it will be cached from the second build onwards
+# To ensure a reproducible build consider pinning 
+# the cargo-chef version with `--version X.X.X`
+RUN cargo install cargo-chef 
+COPY . .
+RUN cargo chef prepare  --recipe-path recipe.json
+
+FROM rust:latest as cacher
+WORKDIR /imposclib
+RUN cargo install cargo-chef
+COPY --from=planner /imposclib/recipe.json recipe.json
+RUN cargo chef cook --release --recipe-path recipe.json
+
+FROM rust:latest as builder
+WORKDIR /imposclib
+COPY . .
+# Copy over the cached dependencies
+COPY --from=cacher /imposclib/target target
+COPY --from=cacher /usr/local/cargo /usr/local/cargo
+# RUN cargo build --release --lib imposclib
+
+# FROM rust as runtime
+# WORKDIR imposclib
+# COPY --from=builder /imposclib/target/release/imposclib /usr/local/bin
+# ENTRYPOINT ["./usr/local/bin/imposclib"]
+
+CMD [ "cargo", "test" ]
+
