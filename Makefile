@@ -52,3 +52,6 @@ jstest:
 	cd imposc/static && npm test
 
 test: cargo-test pytest jstest
+
+run: develop
+	source $(VENV)/activate && cd $(IMPOSCDIR) && uvicorn main:app --host 0.0.0.0 --port 8000 --reload
