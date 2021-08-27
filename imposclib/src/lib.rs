@@ -8,6 +8,8 @@ use std::convert::From;
 
 use std::collections::HashMap;
 
+mod dynamics;
+
 #[pymodule]
 fn imposclib(_py: Python, m: &PyModule) -> PyResult<()> {
     // PyO3 aware function. All of our Python interfaces could be declared in a separate module.
