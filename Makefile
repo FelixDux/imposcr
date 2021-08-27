@@ -2,19 +2,20 @@
 
 .PHONY: refresh venv
 
+PY?=python3.9
 MARKER=.initialized-with-Makefile.venv
 IMPOSCDIR=$(realpath ./imposc)
 VENVDIR?=$(IMPOSCDIR)/.venv
 VENV=$(VENVDIR)/bin
 LIBDIR=$(realpath ./imposclib)
 TARGET?=$(LIBDIR)/target
-DEVELOPDIR=$(VENVDIR)/lib/python3.9/site-packages/imposclib
+DEVELOPDIR=$(VENVDIR)/lib/$(PY)/site-packages/imposclib
 REQUIREMENTS_DEV=$(IMPOSCDIR)/requirements-dev.txt
 
 venv: $(VENV)/$(MARKER)
 
 $(VENV):
-	python3 -m venv $(VENVDIR)
+	$(PY) -m venv $(VENVDIR)
 	$(VENV)/python -m pip install --upgrade pip setuptools wheel
 
 $(REQUIREMENTS_DEV): $(VENV)
