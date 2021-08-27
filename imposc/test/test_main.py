@@ -8,7 +8,6 @@ client = TestClient(app)
 def test_read_main():
     response = client.get("/")
     assert response.status_code == 200
-    assert response.json() == {"msg": "Watch this space ..."}
 
 @pytest.mark.parametrize(('category', 'status', 'response_json'), [
     ("symbols", 200, {"Properties":[{"Parameter":"frequency","Property":"ω"},{"Parameter":"offset","Property":"σ"},{"Parameter":"phi","Property":"φ"}]}),

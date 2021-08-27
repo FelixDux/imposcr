@@ -3,9 +3,13 @@
 .PHONY: refresh venv
 
 MARKER=.initialized-with-Makefile.venv
-VENVDIR?=$(realpath ./imposc/.venv)
+IMPOSCDIR=$(realpath ./imposc)
+VENVDIR?=$(IMPOSCDIR)/.venv
 VENV=$(VENVDIR)/bin
-TARGET?=$(realpath ./imposclib/target)
+LIBDIR=$(realpath ./imposclib)
+TARGET?=$(LIBDIR)/target
+DEVELOPDIR=$(VENVDIR)/lib/python3.9/site-packages/imposclib
+REQUIREMENTS_DEV=$(IMPOSCDIR)/requirements-dev.txt
 
 venv: $(VENV)/$(MARKER)
 
@@ -13,8 +17,10 @@ $(VENV):
 	python3 -m venv $(VENVDIR)
 	$(VENV)/python -m pip install --upgrade pip setuptools wheel
 
-$(VENV)/$(MARKER): $(VENV)
-	$(VENV)/python -m pip install -r ./imposc/requirements-dev.txt
+$(REQUIREMENTS_DEV): $(VENV)
+	$(VENV)/python -m pip install -r $(REQUIREMENTS_DEV)
+
+$(VENV)/$(MARKER): $(REQUIREMENTS_DEV)
 	touch $(VENV)/$(MARKER)
 
 .PHONY: clean-venv
@@ -29,8 +35,11 @@ clean-cargo:
 clean: clean-venv clean-cargo
 
 .PHONY: develop
-develop: venv $(VENVDIR)/lib/python3.9/site-packages/imposclib
+develop: $(DEVELOPDIR)/$(MARKER)
+
+$(DEVELOPDIR)/$(MARKER): venv
 	source $(VENV)/activate && cd imposclib && maturin develop
+	touch $(DEVELOPDIR)/$(MARKER)
 
 .PHONY: cargo-test pytest test
 cargo-test:
@@ -39,4 +48,7 @@ cargo-test:
 pytest: develop
 	cd imposc && $(VENV)/python -m pytest
 
-test: cargo-test pytest
+jstest:
+	cd imposc/static && npm test
+
+test: cargo-test pytest jstest
