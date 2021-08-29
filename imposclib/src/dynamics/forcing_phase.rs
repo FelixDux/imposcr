@@ -1,10 +1,12 @@
-#![crate_name = "doc"]
+#![crate_name = "imposclib"]
 #![feature(result_contains_err)]
 
 use std::f64::consts::PI;
-use float_eq::assert_float_eq;
 
 #[derive(Debug, PartialEq)]
+/// Error modes for initialising a `PhaseConverter`.
+/// 
+/// A `PhaseConverter` must be initialised by a strictly positive forcing frequency
 pub enum PhaseError {
     ZeroForcingFrequency,
     NegativeForcingFrequency {frequency: f64 }
@@ -14,20 +16,31 @@ pub enum PhaseError {
 /// number of periods into a simulation.
 #[derive(Debug)]
 pub struct PhaseConverter {
+    /// The forcing period for the system, which must be strictly positive.
     period: f64
 }
 
-fn new_phase_converter(frequency: f64) -> Result<PhaseConverter, PhaseError> {
-    if frequency == 0.0 {
-        Err(PhaseError::ZeroForcingFrequency)
-    } else if frequency < 0.0 {
-        Err(PhaseError::NegativeForcingFrequency{frequency: frequency})
-    } else {
-        Ok(PhaseConverter{ period: PI * 2.0f64/ frequency})
-    }
-}
-
 impl PhaseConverter {
+    /// Returns a phase converter for a specified forcing frequency
+    /// 
+    /// # Arguments
+    /// 
+    /// * `frequency` - A strictly positive forcing frequency
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// let converter = PhaseConverter(3.87);
+    /// ```
+    fn new(frequency: f64) -> Result<PhaseConverter, PhaseError> {
+        if frequency == 0.0 {
+            Err(PhaseError::ZeroForcingFrequency)
+        } else if frequency < 0.0 {
+            Err(PhaseError::NegativeForcingFrequency{frequency: frequency})
+        } else {
+            Ok(PhaseConverter{ period: PI * 2.0f64/ frequency})
+        }
+    }
 
     fn time_to_phase(&self, simtime: f64) -> f64 {
         let scaled_time = simtime / self.period;
@@ -58,21 +71,22 @@ impl PhaseConverter {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use float_eq::assert_float_eq;
 
     #[test]
     fn zero_frequency_returns_error() {
-        assert_eq!(new_phase_converter(0.0).unwrap_err(), PhaseError::ZeroForcingFrequency);
+        assert_eq!(PhaseConverter::new(0.0).unwrap_err(), PhaseError::ZeroForcingFrequency);
     }
 
     #[test]
     fn negative_frequency_returns_error() {
         let frequency = -1.0;
-        assert_eq!(new_phase_converter(frequency).unwrap_err(), PhaseError::NegativeForcingFrequency{frequency});
+        assert_eq!(PhaseConverter::new(frequency).unwrap_err(), PhaseError::NegativeForcingFrequency{frequency});
     }
 
     #[test]
     fn time_converts_to_phase_correctly() -> Result<(), PhaseError> {
-        let converter = new_phase_converter(PI)?;
+        let converter = PhaseConverter::new(PI)?;
 
         let time = 3.0;
         let expected = 0.5;
@@ -89,7 +103,7 @@ mod tests {
         let expected = 1.0;
         let f = 2.0*PI/period;
     
-        assert_eq!(new_phase_converter(f)?.time_into_cycle(phase), expected);
+        assert_eq!(PhaseConverter::new(f)?.time_into_cycle(phase), expected);
     
         Ok(())
     }
@@ -119,7 +133,7 @@ mod tests {
             
             const TOL: f64 = 1e-6;
 
-            let conv = new_phase_converter(frequency)?;
+            let conv = PhaseConverter::new(frequency)?;
             let time_shift = (i as f64)*conv.period;
 
             let shifted_time = time_shift + start_time;
@@ -146,7 +160,7 @@ mod tests {
             
             const TOL: f64 = 1e-6;
 
-            let conv = new_phase_converter(frequency)?;
+            let conv = PhaseConverter::new(frequency)?;
 
             let time_delta = i as f64 * conv.period;
 
