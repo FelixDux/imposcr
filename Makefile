@@ -54,5 +54,9 @@ jstest:
 
 test: cargo-test pytest jstest
 
+.PHONY: cargo-doc
+cargo-doc:
+	cd imposclib && cargo doc --no-deps
+
 run: develop
 	source $(VENV)/activate && cd $(IMPOSCDIR) && uvicorn main:app --host 0.0.0.0 --port 8000 --reload
