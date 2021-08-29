@@ -3,13 +3,17 @@
 
 use std::f64::consts::PI;
 
+pub type Time = f64;
+pub type Phase = f64;
+pub type Frequency = f64;
+
 #[derive(Debug, PartialEq)]
 /// Error modes for initialising a `PhaseConverter`.
 /// 
 /// A `PhaseConverter` must be initialised by a strictly positive forcing frequency
 pub enum PhaseError {
     ZeroForcingFrequency,
-    NegativeForcingFrequency {frequency: f64 }
+    NegativeForcingFrequency {frequency: Frequency }
 } 
 
 /// For a given forcing period, converts between simulation time, normalised forcing phase and
@@ -17,7 +21,7 @@ pub enum PhaseError {
 #[derive(Debug)]
 pub struct PhaseConverter {
     /// The forcing period for the system, which must be strictly positive.
-    period: f64
+    period: Time
 }
 
 impl PhaseConverter {
@@ -32,7 +36,7 @@ impl PhaseConverter {
     /// ```
     /// let converter = PhaseConverter(3.87);
     /// ```
-    fn new(frequency: f64) -> Result<PhaseConverter, PhaseError> {
+    fn new(frequency: Frequency) -> Result<PhaseConverter, PhaseError> {
         if frequency == 0.0 {
             Err(PhaseError::ZeroForcingFrequency)
         } else if frequency < 0.0 {
@@ -42,17 +46,17 @@ impl PhaseConverter {
         }
     }
 
-    fn time_to_phase(&self, simtime: f64) -> f64 {
+    fn time_to_phase(&self, simtime: Time) -> Phase {
         let scaled_time = simtime / self.period;
 
         scaled_time - scaled_time.floor()
     }
 
-    fn time_into_cycle(&self, phase: f64) -> f64 {
+    fn time_into_cycle(&self, phase: Phase) -> Time {
         phase * self.period
     }
 
-    fn forward_to_phase(&self, starttime: f64, phase: f64) -> f64 {
+    fn forward_to_phase(&self, starttime: Time, phase: Phase) -> Time {
         let mut phase_change = phase - self.time_to_phase(starttime);
 
         if phase_change < 0.0 {
@@ -62,7 +66,7 @@ impl PhaseConverter {
         starttime + self.time_into_cycle(phase_change)
     }
 
-    fn difference_in_periods (&self, starttime: f64, endtime: f64) -> i32 {
+    fn difference_in_periods (&self, starttime: Time, endtime: Time) -> i32 {
         ((endtime - starttime).abs()/self.period).floor() as i32
     }
 }
