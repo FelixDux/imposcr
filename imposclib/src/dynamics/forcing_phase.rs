@@ -2,6 +2,7 @@
 #![feature(result_contains_err)]
 
 use std::f64::consts::PI;
+use float_eq::assert_float_eq;
 
 #[derive(Debug, PartialEq)]
 pub enum PhaseError {
@@ -28,29 +29,29 @@ fn new_phase_converter(frequency: f64) -> Result<PhaseConverter, PhaseError> {
 
 impl PhaseConverter {
 
-    fn time_to_phase(self, simtime: f64) -> f64 {
+    fn time_to_phase(&self, simtime: f64) -> f64 {
         let scaled_time = simtime / self.period;
 
         scaled_time - scaled_time.floor()
     }
 
-fn time_into_cycle (self, phase: f64) -> f64 {
-    phase * self.period
-}
+    fn time_into_cycle(&self, phase: f64) -> f64 {
+        phase * self.period
+    }
 
-// func (converter PhaseConverter) ForwardToPhase (starttime float64, phase float64) float64 {
-//     phase_change := phase - converter.TimeToPhase(starttime)
+    fn forward_to_phase(&self, starttime: f64, phase: f64) -> f64 {
+        let mut phase_change = phase - self.time_to_phase(starttime);
 
-//     if (phase_change < 0) {
-//         phase_change++
-//     }
+        if phase_change < 0.0 {
+            phase_change += 1.0;
+        }
 
-//     return starttime + converter.Period * phase_change
-// }
+        starttime + self.time_into_cycle(phase_change)
+    }
 
-// func (converter PhaseConverter) DifferenceInPeriods (starttime float64, endtime float64) int {
-//     return int(math.Round(math.Abs(endtime - starttime)/converter.Period))
-// }
+    fn difference_in_periods (&self, starttime: f64, endtime: f64) -> i32 {
+        ((endtime - starttime).abs()/self.period).floor() as i32
+    }
 }
 
 
@@ -81,7 +82,7 @@ mod tests {
         Ok(())
     }
 
-    #[test]    
+    #[test]
     fn convert_time_into_cycle() -> Result<(), PhaseError> {
         let phase = 0.80;
         let period = 1.25;
@@ -92,40 +93,42 @@ mod tests {
     
         Ok(())
     }
+        
+    #[test]
+    fn test_shift_time_in_periods() -> Result<(), PhaseError> {
     
-    // var ints = [] int {1, 2, 4, 5, 16}
-    // var frequencies = [] float64 {4.89, 2.76}
-    // var start_time = 0.02
-    
-    // const tol = 1e-6
-    // var opt = cmp.Comparer(func(x, y float64) bool {
-    //     return math.Abs(x-y) < tol
-    // })
-    
-    // func TestShiftTimeInPeriods(t *testing.T) {
-    //     for _, f := range frequencies {
-    //         conv, _ := NewPhaseConverter(f)
-    
-    //         for _, i := range ints {
-    //             time_shift := float64(i)*conv.Period
-    
-    //             shifted_time := time_shift + start_time
-    
-    //             new_time := conv.TimeIntoCycle(conv.TimeToPhase(shifted_time))
-    
-    //             if !cmp.Equal(new_time, start_time, opt) {
-    //                 t.Errorf("Converter with frequency %g does not convert consistently in both directions (start time %g, time shift %g, end time %g, %d periods)",
-    //                         f, start_time, time_shift, new_time, i)
-    //             }
-    
-    //             n := conv.DifferenceInPeriods(start_time, shifted_time)
-    //             if i != n {
-    //                 t.Errorf("Converter with frequency %g does not return correct number of periods %g between times %g and %g: expected %d, got %d",
-    //                         f, conv.Period, start_time, shifted_time, i, n)                
-    //             }
-    //         }
-    //     }
-    // }
+        let ints = vec![1, 2, 4, 5, 16];
+        let frequencies: Vec<f64> = vec![4.89, 2.76];
+        let start_time = 0.02;
+        
+        const TOL: f64 = 1e-6;
+
+        let mut result = Ok(());
+
+        let inner_test = |i: i32, frequency: f64| -> Result<(), PhaseError> {
+            let conv = new_phase_converter(frequency)?;
+            let time_shift = (i as f64)*conv.period;
+
+            let shifted_time = time_shift + start_time;
+
+            let new_time = conv.time_into_cycle(conv.time_to_phase(shifted_time));
+
+            assert_float_eq!(new_time, start_time, abs <= TOL);
+
+            let n = conv.difference_in_periods(start_time, shifted_time);
+            assert_eq!(i, n);
+
+            Ok(())
+        };
+
+        for f in &frequencies {    
+            for i in &ints {
+                result = inner_test(*i, *f);
+            }
+        }
+        
+        result
+    }
     
     // func TestForwardToPhase(t *testing.T) {
     //     for _, f := range frequencies {
