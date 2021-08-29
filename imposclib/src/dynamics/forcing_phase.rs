@@ -93,19 +93,32 @@ mod tests {
     
         Ok(())
     }
-        
-    #[test]
-    fn test_shift_time_in_periods() -> Result<(), PhaseError> {
+
+    fn wrap_test<F>(inner_test: F) -> Result<(), PhaseError>
+    where F: Fn(i32, f64) -> Result<(), PhaseError> {
     
         let ints = vec![1, 2, 4, 5, 16];
         let frequencies: Vec<f64> = vec![4.89, 2.76];
-        let start_time = 0.02;
-        
-        const TOL: f64 = 1e-6;
 
         let mut result = Ok(());
 
+        for f in &frequencies {    
+            for i in &ints {
+                result = inner_test(*i, *f);
+            }
+        }
+        
+        result
+    }
+        
+    #[test]
+    fn test_shift_time_in_periods() -> Result<(), PhaseError> {
+
         let inner_test = |i: i32, frequency: f64| -> Result<(), PhaseError> {
+            let start_time = 0.02;
+            
+            const TOL: f64 = 1e-6;
+
             let conv = new_phase_converter(frequency)?;
             let time_shift = (i as f64)*conv.period;
 
@@ -121,41 +134,35 @@ mod tests {
             Ok(())
         };
 
-        for f in &frequencies {    
-            for i in &ints {
-                result = inner_test(*i, *f);
-            }
-        }
-        
-        result
+        wrap_test(inner_test)
     }
     
-    // func TestForwardToPhase(t *testing.T) {
-    //     for _, f := range frequencies {
-    //         conv, _ := NewPhaseConverter(f)
-    
-    //         for _, i := range ints {
-    //             phase := 0.6
-    //             small_time := 0.2
-    //             big_time := 0.8
-    
-    //             time_delta := float64(i) * conv.Period
-    
-    //             new_small := conv.ForwardToPhase(time_delta + small_time, phase)
-    //             new_small_phase := conv.TimeToPhase(new_small)
-    
-    //             if !cmp.Equal(phase, new_small_phase, opt) {
-    //                 t.Errorf("Phase converter with frequency %g runs forward time %g from time %g to phase %g, expected %g", f, time_delta, small_time, new_small_phase, phase)
-    //             }
-    
-    //             new_big := conv.ForwardToPhase(time_delta + big_time, phase)
-    //             new_big_phase := conv.TimeToPhase(new_big)
-    
-    //             if !cmp.Equal(phase, new_big_phase, opt) {
-    //                 t.Errorf("Phase converter with frequency %g runs forward time %g from time %g to phase %g, expected %g", f, time_delta, big_time, new_big_phase, phase)
-    //             }
-    //         }
-    //     }
-    // }
-    
+    #[test]
+    fn test_forward_to_phase() -> Result<(), PhaseError> {
+        let inner_test = |i: i32, frequency: f64| -> Result<(), PhaseError> {
+            let phase = 0.6;
+            let small_time = 0.2;
+            let big_time = 0.8;
+            
+            const TOL: f64 = 1e-6;
+
+            let conv = new_phase_converter(frequency)?;
+
+            let time_delta = i as f64 * conv.period;
+
+            let new_small = conv.forward_to_phase(time_delta + small_time, phase);
+            let new_small_phase = conv.time_to_phase(new_small);
+
+            assert_float_eq!(phase, new_small_phase, abs <= TOL);
+
+            let new_big = conv.forward_to_phase(time_delta + big_time, phase);
+            let new_big_phase = conv.time_to_phase(new_big);
+
+            assert_float_eq!(phase, new_big_phase, abs <= TOL);
+
+            Ok(())
+        };
+
+        wrap_test(inner_test)
+    }    
 }
