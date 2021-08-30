@@ -1,3 +1,5 @@
+#![crate_name = "imposclib"]
+#![feature(result_contains_err)]
 // Using [PyO3](https://pyo3.rs/v0.14.1/), with [maturin](https://crates.io/crates/maturin) for distribution
 
 use pyo3::prelude::*;

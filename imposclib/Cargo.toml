@@ -7,7 +7,7 @@ edition = "2018"
 
 [dependencies]
 maturin = "0.11.2"
-float_eq = "*"
+# float_eq = "*"
 
 [lib]
 crate-type = ["cdylib"]
@@ -15,5 +15,9 @@ crate-type = ["cdylib"]
 [dependencies.pyo3]
 version = "0.14.1"
 features = ["extension-module"]
+
+[dependencies.float_eq]
+version = "0.6"
+features = ["derive"]
 
 cargo-features = ["profile-overrides"]

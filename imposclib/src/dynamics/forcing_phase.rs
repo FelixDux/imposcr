@@ -1,5 +1,5 @@
-#![crate_name = "imposclib"]
-#![feature(result_contains_err)]
+// #![crate_name = "imposclib"]
+// #![feature(result_contains_err)]
 
 use std::f64::consts::PI;
 
@@ -18,7 +18,7 @@ pub enum PhaseError {
 
 /// For a given forcing period, converts between simulation time, normalised forcing phase and
 /// number of periods into a simulation.
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct PhaseConverter {
     /// The forcing period for the system, which must be strictly positive.
     period: Time
@@ -36,7 +36,7 @@ impl PhaseConverter {
     /// ```
     /// let converter = PhaseConverter(3.87);
     /// ```
-    fn new(frequency: Frequency) -> Result<PhaseConverter, PhaseError> {
+    pub fn new(frequency: Frequency) -> Result<PhaseConverter, PhaseError> {
         if frequency == 0.0 {
             Err(PhaseError::ZeroForcingFrequency)
         } else if frequency < 0.0 {
@@ -46,17 +46,17 @@ impl PhaseConverter {
         }
     }
 
-    fn time_to_phase(&self, simtime: Time) -> Phase {
+    pub fn time_to_phase(&self, simtime: Time) -> Phase {
         let scaled_time = simtime / self.period;
 
         scaled_time - scaled_time.floor()
     }
 
-    fn time_into_cycle(&self, phase: Phase) -> Time {
+    pub fn time_into_cycle(&self, phase: Phase) -> Time {
         phase * self.period
     }
 
-    fn forward_to_phase(&self, starttime: Time, phase: Phase) -> Time {
+    pub fn forward_to_phase(&self, starttime: Time, phase: Phase) -> Time {
         let mut phase_change = phase - self.time_to_phase(starttime);
 
         if phase_change < 0.0 {
@@ -66,8 +66,12 @@ impl PhaseConverter {
         starttime + self.time_into_cycle(phase_change)
     }
 
-    fn difference_in_periods (&self, starttime: Time, endtime: Time) -> i32 {
+    pub fn difference_in_periods (&self, starttime: Time, endtime: Time) -> i32 {
         ((endtime - starttime).abs()/self.period).floor() as i32
+    }
+
+    pub fn get_period(&self) -> Time {
+        self.period
     }
 }
 
