@@ -8,12 +8,14 @@ use super::model_types::Time as Time;
 use super::model_types::Distance as Distance;
 use super::model_types::Velocity as Velocity;
 use super::model_types::ParameterError as ParameterError;
+use super::model_types::Coefficient as Coefficient;
 use super::impact::Impact as Impact;
 use super::impact::ImpactGenerator as ImpactGenerator;
+use super::sticking::Sticking as Sticking;
 
 pub struct StateOfMotion {
 	// 	State and phase variables for the motion between impacts
-	time: Time;
+	time: Time,
 	displacement: Distance,
 	velocity: Velocity
 }
@@ -25,14 +27,13 @@ pub struct LongExcursionChecker {
     maximum_periods: u32
 }
 
-#[derive(Debug)]
 impl LongExcursionChecker {
-    fn new(maximum_periods: u32, converter: PhaseConverter, from_time: Time) {
+    fn new(maximum_periods: u32, converter: PhaseConverter, from_time: Time) -> LongExcursionChecker {
         LongExcursionChecker{converter: converter, from_time: from_time, maximum_periods: maximum_periods}
     }
 
     pub fn check(&self, time: Time) -> bool {
-        time - self.from_time > float64(MaximumPeriods) * converter.get_period()
+        time - self.from_time > (self.maximum_periods as f64) * self.converter.get_period()
     }
 }
 
@@ -48,35 +49,35 @@ pub struct MotionAtTime {
 
 impl MotionAtTime {
     fn new(parameters: Parameters, converter: PhaseConverter, impact: Impact) -> MotionAtTime {
-        let cos_coefficient = parameters.obstacle_offset() - parameters.gamma() * parameters.forcing_frequency(impact.time()).cos();
+        let cos_coefficient = parameters.obstacle_offset() - parameters.gamma() * (parameters.forcing_frequency()*impact.time()).cos();
         
-        let sin_coefficient = -(parameters.coefficient_of_restitution() * impact.velocity()) + parameters.forcing_frequency() * parameters.gamma() * parameters.forcing_frequency(impact.time()).sin();
+        let sin_coefficient = -(parameters.coefficient_of_restitution() * impact.velocity()) + parameters.forcing_frequency() * parameters.gamma() * (parameters.forcing_frequency()*impact.time()).sin();
 
         return MotionAtTime{
             parameters: parameters, 
-            impact_time: impact.Time, 
+            impact_time: impact.time(), 
             cos_coefficient: cos_coefficient, 
             sin_coefficient: sin_coefficient, 
-            long_excursion_checker: LongExcursionChecker(parameters.maximum_periods(), converter, impact.Time)}
+            long_excursion_checker: LongExcursionChecker::new(parameters.maximum_periods(), converter, impact.time())}
     }
 
-    pub fn state(time: Time) -> StateOfMotion {
-        let lambda = time - motion.impact_time;
+    pub fn state(&self, time: Time) -> StateOfMotion {
+        let lambda = time - self.impact_time;
 
         let cos_lambda = lambda.cos();
         let sin_lambda = lambda.sin();
 
         StateOfMotion{time: time,
-            displacement: motion.cos_coefficient * cos_lambda + motion.sin_coefficient * sin_lambda + 
-                motion.parameters.gamma() * (time * motion.parameters.forcing_frequency()).cos(),
-            velocity: motion.sin_coefficient * cos_lambda - motion.cos_coefficient * sin_lambda - 
-                motion.parameters.forcing_frequency() * motion.parameters.gamma() * (time * motion.parameters.forcing_frequency()).sin() }
+            displacement: self.cos_coefficient * cos_lambda + self.sin_coefficient * sin_lambda + 
+                self.parameters.gamma() * (time * self.parameters.forcing_frequency()).cos(),
+            velocity: self.sin_coefficient * cos_lambda - self.cos_coefficient * sin_lambda - 
+                self.parameters.forcing_frequency() * self.parameters.gamma() * (time * self.parameters.forcing_frequency()).sin() }
     }
 }
 
 #[derive(Debug)]
 pub struct MotionGenerator {
-    parameters: Parameters:
+    parameters: Parameters,
     converter: PhaseConverter
 }
 
@@ -132,27 +133,23 @@ impl MotionBetweenImpacts {
 
         let mut trajectory: Vec<StateOfMotion> = vec![];
         
-        trajectory.push(trajectory, StateOfMotion {time: impact.time(), displacement: self.offset, velocity: impact.velocity()});
+        trajectory.push(StateOfMotion {time: impact.time(), displacement: self.offset, velocity: impact.velocity()});
         
         let release_impact = self.sticking.check_impact(impact);
         
-        if (release_impact.new_impact()) {
-            trajectory = append(trajectory, StateOfMotion{
+        if release_impact.new_impact() {
+            trajectory.push(StateOfMotion{
                 time: release_impact.impact().time(), 
-                displacement: motion.offset, 
-                velocity: releaseImpact.impact().velocity()})
+                displacement: self.offset, 
+                velocity: release_impact.impact().velocity()})
         }
 
         NextImpactResult{motion: trajectory, found_impact: false}
     }
 
-    fn default_next_impact_result(&self, impact: Impact) -> NextImpactResult {
-        self.new_next_impact_result(300, impact)
-    }
-
     fn next_impact(&self, impact: Impact) -> NextImpactResult {
 
-        let mut result = self.default_next_impact_result(impact);
+        let mut result = self.new_next_impact_result(impact);
 
         result.found_impact = true;
 
@@ -162,7 +159,7 @@ impl MotionBetweenImpacts {
 
         let mut current_time = result.motion.last().unwrap().time;
 
-        for math.Abs(step_size) > self.search.minimum_step_size && result.found_impact {
+        while step_size.abs() > self.search.minimum_step_size && result.found_impact {
             current_time += step_size;
 
             let current_state = motion_model.state(current_time);
@@ -171,22 +168,22 @@ impl MotionBetweenImpacts {
             if current_state.displacement < self.offset {
                 // only record the state if it is physical
                 // (i.e. non-penetrating)
-                result = result.grow(current_state);
+                result.grow(current_state);
 
                 if step_size < 0.0 {
                     step_size *= -0.5;
                 }
             } else if current_state.displacement > self.offset {
-                if (step_size > 0) {
+                if (step_size > 0.0) {
                     step_size *= -0.5;
                 }
             } else {
-                result = result.grow(current_state);
-                step_size = 0;
+                result.grow(current_state);
+                step_size = 0.0;
             }
 
-            if (motion_model.long_excursion(current_time)) {
-                result.FoundImpact = false;
+            if (motion_model.long_excursion_checker.check(current_time)) {
+                result.found_impact = false;
             }
         }
         
@@ -201,7 +198,7 @@ pub struct NextImpactResult {
 }
 
 impl NextImpactResult {
-    fn new() -> NewNextImpactResult {
+    fn new() -> NextImpactResult {
         NextImpactResult{motion: vec![], found_impact: false}
     }
 
