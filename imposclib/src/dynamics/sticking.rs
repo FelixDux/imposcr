@@ -11,6 +11,16 @@ pub struct ReleaseImpact {
 	impact: Impact
 }
 
+impl ReleaseImpact {
+    pub fn new_impact(&self) -> bool {
+        self.new_impact
+    }
+
+    pub fn impact(&self) -> Impact {
+        self.impact
+    }
+}
+
 #[derive(Debug)]
 pub struct Sticking {
 	phase_in: Phase,
