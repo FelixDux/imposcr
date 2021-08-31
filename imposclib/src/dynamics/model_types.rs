@@ -14,7 +14,7 @@ pub enum ParameterError {
     ResonantForcingFrequency {frequency: Frequency },
     LargeCoefficientOfRestitution {coefficient: Coefficient},
     NegativeCoefficientOfRestitution {coefficient: Coefficient},
-    ZeroMaximumPeriods {periods: u32}
+    ZeroMaximumPeriods
 }
 
 // Displaying error modes
@@ -26,7 +26,7 @@ impl fmt::Display for ParameterError {
             ParameterError::ResonantForcingFrequency{ref frequency} => write!(f, "A forcing frequency of {:?} is a resonant case with unbounded solutions", frequency),
             ParameterError::LargeCoefficientOfRestitution{ref coefficient} => write!(f, "A coefficient of restitution of {:?} > 1 will generate unbounded solutions", coefficient),
             ParameterError::NegativeCoefficientOfRestitution{ref coefficient} => write!(f, "A coefficient of restitution of {:?} < 0> will generate unphysical solutions", coefficient),
-            ParameterError::ZeroMaximumPeriods{ref periods} => write!(f, "Maximum number of forcing periods {:?} to detect impact must be > 0", periods)
+            ParameterError::ZeroMaximumPeriods => write!(f, "Maximum number of forcing periods to detect impact must be > 0")
         }
     }
 }
