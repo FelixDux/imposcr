@@ -28,14 +28,23 @@ pub struct Impact {
 	time: Time
 }
 
-type ImpactGenerator = dyn Fn(Time, Velocity) -> Impact;
+#[derive(Debug)]
+pub struct ImpactGenerator {
+	converter: PhaseConverter
+}
 
-fn impact_generator(phase_converter: PhaseConverter) -> Box<ImpactGenerator> {
-	Box::new(move |impact_time: Time, impact_velocity: Velocity| -> Impact  {
-		Impact{time: impact_time, simple_impact: SimpleImpact {
-			phase: phase_converter.time_to_phase(impact_time), 
-			velocity: impact_velocity}}
-	})
+impl ImpactGenerator
+{
+	pub fn new(converter: PhaseConverter) -> ImpactGenerator {
+		ImpactGenerator{converter: converter}
+	}
+
+	pub fn generate(&self, impact_time: Time, impact_velocity: Velocity) -> Impact  {
+			Impact{time: impact_time, simple_impact: SimpleImpact {
+				phase: self.converter.time_to_phase(impact_time), 
+				velocity: impact_velocity}
+			}
+	}
 }
 
 type SimpleImpactComparer = dyn Fn(SimpleImpact, SimpleImpact) -> bool;
@@ -56,9 +65,9 @@ fn simple_impact_comparer(tolerance: SimpleImpact) -> Box<SimpleImpactComparer> 
 	})
 }
 
-type ImpactComparer = dyn Fn(Impact, Impact) -> bool;
+pub type ImpactComparer = dyn Fn(Impact, Impact) -> bool;
 
-fn impact_comparer(tolerance: SimpleImpact) -> Box<ImpactComparer> {
+pub fn impact_comparer(tolerance: SimpleImpact) -> Box<ImpactComparer> {
 	let comparer = simple_impact_comparer(tolerance);
 
 	Box::new(move |x: Impact, y: Impact| -> bool {
@@ -79,6 +88,10 @@ impl Impact{
 
 	pub fn velocity(&self) -> Velocity {
 		self.simple_impact.velocity
+	}
+
+	pub fn time(&self) -> Time {
+		self.time
 	}
 
 	pub fn dual_impact(&self, coefficient_of_restitution: f64) -> Impact {
@@ -119,7 +132,7 @@ mod tests {
 	fn default_impact_comparison() -> () {
 		let converter = PhaseConverter::new(2.0).unwrap();
 
-		let generator = impact_generator(converter);
+		let generator = ImpactGenerator{converter: converter};
 
 		let comparer = default_impact_comparer();
 
@@ -127,11 +140,11 @@ mod tests {
 			assert_eq!(comparer(x, y), expected)
 		};
 
-		let impact1 = generator(0.0, 1.0);
-		let impact2 = generator(0.0001, 1.0001);
-		let impact3 = generator(0.3, 0.2);
-		let impact4 = generator(1.0000001*converter.get_period(), 1.0);
-		let impact5 = generator(0.99999*converter.get_period(), 1.0);
+		let impact1 = generator.generate(0.0, 1.0);
+		let impact2 = generator.generate(0.0001, 1.0001);
+		let impact3 = generator.generate(0.3, 0.2);
+		let impact4 = generator.generate(1.0000001*converter.get_period(), 1.0);
+		let impact5 = generator.generate(0.99999*converter.get_period(), 1.0);
 	
 		check_equal(impact1, impact2, true);
 		check_equal(impact3, impact2, false);
@@ -143,9 +156,9 @@ mod tests {
 	fn test_impact_dual() {
 		let converter = PhaseConverter::new(2.0).unwrap();
 
-		let generator = impact_generator(converter);
+		let generator = ImpactGenerator{converter: converter};
 
-		let impact = generator(0.3, 1.2);
+		let impact = generator.generate(0.3, 1.2);
 
 		struct Test {
 			r: f64,

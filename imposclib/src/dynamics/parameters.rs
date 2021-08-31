@@ -1,5 +1,4 @@
 use super::model_types::Frequency as Frequency;
-use super::model_types::Phase as Phase;
 use super::model_types::Distance as Distance;
 use super::model_types::Coefficient as Coefficient;
 use super::model_types::ParameterError as ParameterError;
@@ -14,7 +13,7 @@ pub struct Parameters {
 }
 
 impl Parameters {
-    fn new(frequency: Frequency, offset: Distance, r: Coefficient, max_periods: u32) -> Result<Parameters, Vec<ParameterError>> {
+    pub fn new(frequency: Frequency, offset: Distance, r: Coefficient, max_periods: u32) -> Result<Parameters, Vec<ParameterError>> {
         let mut error_list: Vec<ParameterError> = vec![];
 
         if frequency == 0.0 {
@@ -45,7 +44,27 @@ impl Parameters {
             return Err(error_list);
         }
 
-        Ok(Parameters{forcing_frequency: frequency, obstacle_offset: offset, coefficient_of_restitution: r, maximum_periods: max_periods, gamma: 1.0/(1.0 - frequency.powf(2.0))})
+        Ok(Parameters{forcing_frequency: frequency, obstacle_offset: offset, coefficient_of_restitution: r, maximum_periods: max_periods, gamma: 1.0/(1.0 - frequency.powi(2))})
+    }
+
+    pub fn forcing_frequency(&self) -> Frequency {
+        self.forcing_frequency
+    }
+
+    pub fn coefficient_of_restitution(&self) -> Coefficient {
+        self.coefficient_of_restitution
+    }
+
+    pub fn obstacle_offset(&self) -> Distance {
+        self.obstacle_offset
+    }
+
+    pub fn gamma(&self) -> Coefficient {
+        self.gamma
+    }
+
+    pub fn maximum_periods(&self) -> u32 {
+        self.maximum_periods
     }
 }
 #[cfg(test)]
@@ -63,7 +82,7 @@ mod tests {
     
     fn test_parameter_errors() {
 
-        let ParameterErrorTests = vec![
+        let parameter_error_tests = vec![
             ParameterErrorTest{forcing_frequency: 2.8, coefficient_of_restitution: 0.0, obstacle_offset: 0.1, maximum_periods: 100, expected_errors: 0},
             ParameterErrorTest{forcing_frequency: 2.8, coefficient_of_restitution: 0.0, obstacle_offset: 0.1, maximum_periods: 0, expected_errors: 1},
             ParameterErrorTest{forcing_frequency: -2.8, coefficient_of_restitution: 0.8, obstacle_offset: 0.1, maximum_periods: 100, expected_errors: 1},
@@ -73,7 +92,7 @@ mod tests {
             ParameterErrorTest{forcing_frequency: 1.0, coefficient_of_restitution: 1.2, obstacle_offset: -0.1, maximum_periods: 0, expected_errors: 3},
         ];
 
-        for data in ParameterErrorTests.iter() {
+        for data in parameter_error_tests.iter() {
             let result = Parameters::new(data.forcing_frequency, data.obstacle_offset, data.coefficient_of_restitution, data.maximum_periods);
 
             if data.expected_errors == 0 {
