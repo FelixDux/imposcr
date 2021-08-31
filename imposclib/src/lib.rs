@@ -1,5 +1,5 @@
 #![crate_name = "imposclib"]
-#![feature(result_contains_err)]
+// #![feature(result_contains_err)]
 // Using [PyO3](https://pyo3.rs/v0.14.1/), with [maturin](https://crates.io/crates/maturin) for distribution
 
 use pyo3::prelude::*;
@@ -30,7 +30,7 @@ fn imposclib(_py: Python, m: &PyModule) -> PyResult<()> {
 
 #[pyfunction]
 fn app_info() -> ParameterProperties {
-    ParameterProperties::from(vec![("title", "Impact Oscillator"),("version", "0.0.1"), ("description", "Analysis and simulation of a simple vibro-impact model developed in Rust, with a Python wrapper - principally as a learning exercise")])
+    ParameterProperties::from(vec![("title", "Impact Oscillator"),("version", env!("CARGO_PKG_VERSION")), ("description", env!("CARGO_PKG_DESCRIPTION"))])
 }
 
 #[pyfunction]
