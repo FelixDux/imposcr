@@ -77,7 +77,7 @@ mod tests {
             let result = Parameters::new(data.forcing_frequency, data.obstacle_offset, data.coefficient_of_restitution, data.maximum_periods);
 
             if data.expected_errors == 0 {
-                assert_eq!(result.is_ok(), true);
+                assert!(result.is_ok());
             }
             else {
                 let errors = result.unwrap_err();
