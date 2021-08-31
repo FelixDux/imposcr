@@ -1,10 +1,8 @@
-
 use super::forcing_phase::PhaseConverter as PhaseConverter;
-use super::forcing_phase::Time as Time;
-use super::forcing_phase::Phase as Phase;
+use super::model_types::Time as Time;
+use super::model_types::Phase as Phase;
+use super::model_types::Velocity as Velocity;
 use float_eq::FloatEq;
-
-type Velocity = f64;
 
 /// Each impact is uniquely specified by two parameters:
 /// The `phase` (`time` modulo and scaled by the forcing period) at

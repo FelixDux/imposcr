@@ -1,20 +1,8 @@
-// #![crate_name = "imposclib"]
-// #![feature(result_contains_err)]
-
 use std::f64::consts::PI;
-
-pub type Time = f64;
-pub type Phase = f64;
-pub type Frequency = f64;
-
-#[derive(Debug, PartialEq)]
-/// Error modes for initialising a `PhaseConverter`.
-/// 
-/// A `PhaseConverter` must be initialised by a strictly positive forcing frequency
-pub enum PhaseError {
-    ZeroForcingFrequency,
-    NegativeForcingFrequency {frequency: Frequency }
-} 
+use super::model_types::Time as Time;
+use super::model_types::Phase as Phase;
+use super::model_types::Frequency as Frequency;
+use super::model_types::ParameterError as ParameterError;
 
 /// For a given forcing period, converts between simulation time, normalised forcing phase and
 /// number of periods into a simulation.
@@ -36,11 +24,11 @@ impl PhaseConverter {
     /// ```
     /// let converter = PhaseConverter(3.87);
     /// ```
-    pub fn new(frequency: Frequency) -> Result<PhaseConverter, PhaseError> {
+    pub fn new(frequency: Frequency) -> Result<PhaseConverter, ParameterError> {
         if frequency == 0.0 {
-            Err(PhaseError::ZeroForcingFrequency)
+            Err(ParameterError::ZeroForcingFrequency)
         } else if frequency < 0.0 {
-            Err(PhaseError::NegativeForcingFrequency{frequency: frequency})
+            Err(ParameterError::NegativeForcingFrequency{frequency: frequency})
         } else {
             Ok(PhaseConverter{ period: PI * 2.0f64/ frequency})
         }
@@ -83,17 +71,17 @@ mod tests {
 
     #[test]
     fn zero_frequency_returns_error() {
-        assert_eq!(PhaseConverter::new(0.0).unwrap_err(), PhaseError::ZeroForcingFrequency);
+        assert_eq!(PhaseConverter::new(0.0).unwrap_err(), ParameterError::ZeroForcingFrequency);
     }
 
     #[test]
     fn negative_frequency_returns_error() {
         let frequency = -1.0;
-        assert_eq!(PhaseConverter::new(frequency).unwrap_err(), PhaseError::NegativeForcingFrequency{frequency});
+        assert_eq!(PhaseConverter::new(frequency).unwrap_err(), ParameterError::NegativeForcingFrequency{frequency});
     }
 
     #[test]
-    fn time_converts_to_phase_correctly() -> Result<(), PhaseError> {
+    fn time_converts_to_phase_correctly() -> Result<(), ParameterError> {
         let converter = PhaseConverter::new(PI)?;
 
         let time = 3.0;
@@ -105,7 +93,7 @@ mod tests {
     }
 
     #[test]
-    fn convert_time_into_cycle() -> Result<(), PhaseError> {
+    fn convert_time_into_cycle() -> Result<(), ParameterError> {
         let phase = 0.80;
         let period = 1.25;
         let expected = 1.0;
@@ -116,8 +104,8 @@ mod tests {
         Ok(())
     }
 
-    fn wrap_test<F>(inner_test: F) -> Result<(), PhaseError>
-    where F: Fn(i32, f64) -> Result<(), PhaseError> {
+    fn wrap_test<F>(inner_test: F) -> Result<(), ParameterError>
+    where F: Fn(i32, f64) -> Result<(), ParameterError> {
     
         let ints = vec![1, 2, 4, 5, 16];
         let frequencies: Vec<f64> = vec![4.89, 2.76];
@@ -134,9 +122,9 @@ mod tests {
     }
         
     #[test]
-    fn test_shift_time_in_periods() -> Result<(), PhaseError> {
+    fn test_shift_time_in_periods() -> Result<(), ParameterError> {
 
-        let inner_test = |i: i32, frequency: f64| -> Result<(), PhaseError> {
+        let inner_test = |i: i32, frequency: f64| -> Result<(), ParameterError> {
             let start_time = 0.02;
             
             const TOL: f64 = 1e-6;
@@ -160,8 +148,8 @@ mod tests {
     }
     
     #[test]
-    fn test_forward_to_phase() -> Result<(), PhaseError> {
-        let inner_test = |i: i32, frequency: f64| -> Result<(), PhaseError> {
+    fn test_forward_to_phase() -> Result<(), ParameterError> {
+        let inner_test = |i: i32, frequency: f64| -> Result<(), ParameterError> {
             let phase = 0.6;
             let small_time = 0.2;
             let big_time = 0.8;
