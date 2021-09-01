@@ -143,8 +143,8 @@ mod tests {
 		let impact1 = generator.generate(0.0, 1.0);
 		let impact2 = generator.generate(0.0001, 1.0001);
 		let impact3 = generator.generate(0.3, 0.2);
-		let impact4 = generator.generate(1.0000001*converter.get_period(), 1.0);
-		let impact5 = generator.generate(0.99999*converter.get_period(), 1.0);
+		let impact4 = generator.generate(1.0000001*converter.period(), 1.0);
+		let impact5 = generator.generate(0.99999*converter.period(), 1.0);
 	
 		check_equal(impact1, impact2, true);
 		check_equal(impact3, impact2, false);

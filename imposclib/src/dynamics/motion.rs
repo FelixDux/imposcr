@@ -33,7 +33,7 @@ impl LongExcursionChecker {
     }
 
     pub fn check(&self, time: Time) -> bool {
-        time - self.from_time > (self.maximum_periods as f64) * self.converter.get_period()
+        time - self.from_time > (self.maximum_periods as f64) * self.converter.period()
     }
 }
 
@@ -144,7 +144,7 @@ impl MotionBetweenImpacts {
                 velocity: release_impact.impact().velocity()})
         }
 
-        NextImpactResult{motion: trajectory, found_impact: false}
+        NextImpactResult::new()
     }
 
     fn next_impact(&self, impact: Impact) -> NextImpactResult {

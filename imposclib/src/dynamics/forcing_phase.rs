@@ -58,7 +58,7 @@ impl PhaseConverter {
         ((endtime - starttime).abs()/self.period).floor() as i32
     }
 
-    pub fn get_period(&self) -> Time {
+    pub fn period(&self) -> Time {
         self.period
     }
 }
