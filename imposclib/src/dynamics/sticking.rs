@@ -22,51 +22,46 @@ impl ReleaseImpact {
 }
 
 #[derive(Debug)]
-pub struct Sticking {
+pub struct Sticking<'a> {
 	phase_in: Phase,
 	phase_out: Phase,
-	converter: PhaseConverter,
-	generator: ImpactGenerator
+	converter: &'a PhaseConverter,
+	generator: ImpactGenerator<'a>
 }
 
-impl Sticking {
-    pub fn new(parameters: Parameters) -> Result<Sticking, Vec<ParameterError>> {
-        let result = PhaseConverter::new(parameters.forcing_frequency());
+impl<'a> Sticking<'a> {
+    pub fn new(parameters: &'a Parameters) -> Sticking {
+    
+        let converter = parameters.converter();
 
-        if result.is_ok() {
-            let converter = result.unwrap();
+        let mut phase_in = 0.0;
+        let mut phase_out = 0.0;
 
-            let mut phase_in = 0.0;
-            let mut phase_out = 0.0;
+        if 1.0 <= parameters.obstacle_offset() {
+            // No self
+            phase_in = 0.0;
+            phase_out = 0.0;
+        } else if -1.0 >= parameters.obstacle_offset() || parameters.forcing_frequency() == 0.0 {
+            // Sticking for all phases
+            phase_in = 1.0;
+            phase_out = 0.0;
+        } else { 
 
-            if 1.0 <= parameters.obstacle_offset() {
-                // No self
-                phase_in = 0.0;
-                phase_out = 0.0;
-            } else if -1.0 >= parameters.obstacle_offset() || parameters.forcing_frequency() == 0.0 {
-                // Sticking for all phases
-                phase_in = 1.0;
-                phase_out = 0.0;
-            } else { 
+            // (OK to divide by forcing frequency because zero case trapped above)
+            let angle = parameters.obstacle_offset().acos();
+            let phase1 = converter.time_to_phase(angle/parameters.forcing_frequency());
+            let phase2 = 1.0 - phase1;
 
-    			// (OK to divide by forcing frequency because zero case trapped above)
-    			let angle = parameters.obstacle_offset().acos();
-    			let phase1 = converter.time_to_phase(angle/parameters.forcing_frequency());
-    			let phase2 = 1.0 - phase1;
+            if angle.sin() < 0.0 {
+                phase_in = phase1;
+                phase_out = phase2;
+            } else {
+                phase_in = phase2;
+                phase_out = phase1;
+            }
+        }
 
-    			if angle.sin() < 0.0 {
-    				phase_in = phase1;
-    				phase_out = phase2;
-    			} else {
-    				phase_in = phase2;
-    				phase_out = phase1;
-    			}
-
-    			return Ok(Sticking{phase_in: phase_in, phase_out: phase_out, converter: converter, generator: ImpactGenerator::new(converter)});
-    		}
-    	}
-
-        Err(vec![result.unwrap_err()])
+        Sticking{phase_in: phase_in, phase_out: phase_out, converter: converter, generator: ImpactGenerator::new(converter)}
     }
 
     pub fn never(&self) -> bool {
@@ -123,7 +118,7 @@ mod tests {
         for frequency in frequencies.iter() {
             let params = Parameters::new(*frequency, offset, r, 100).unwrap();
     
-            let sticking = Sticking::new(params).unwrap();
+            let sticking = Sticking::new(&params);
     
             let impact_time = 0.0;
     

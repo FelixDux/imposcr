@@ -21,14 +21,14 @@ pub struct StateOfMotion {
 }
 
 #[derive(Debug)]
-pub struct LongExcursionChecker {
-    converter: PhaseConverter,
+pub struct LongExcursionChecker<'a> {
+    converter: &'a PhaseConverter,
     from_time: Time,
     maximum_periods: u32
 }
 
-impl LongExcursionChecker {
-    fn new(maximum_periods: u32, converter: PhaseConverter, from_time: Time) -> LongExcursionChecker {
+impl<'a> LongExcursionChecker<'a> {
+    fn new(maximum_periods: u32, converter: &'a PhaseConverter, from_time: Time) -> LongExcursionChecker {
         LongExcursionChecker{converter: converter, from_time: from_time, maximum_periods: maximum_periods}
     }
 
@@ -38,17 +38,17 @@ impl LongExcursionChecker {
 }
 
 #[derive(Debug)]
-pub struct MotionAtTime {	
+pub struct MotionAtTime<'a> {	
 	// Coefficients for time evolution of the system from one impact to the next 
-	parameters: Parameters,
+	parameters: &'a Parameters,
 	impact_time: Time,
 	cos_coefficient: Coefficient,
 	sin_coefficient: Coefficient,
-	long_excursion_checker: LongExcursionChecker
+	long_excursion_checker: LongExcursionChecker<'a>
 }
 
-impl MotionAtTime {
-    fn new(parameters: Parameters, converter: PhaseConverter, impact: Impact) -> MotionAtTime {
+impl<'a> MotionAtTime<'a> {
+    fn new(parameters: &'a Parameters, impact: Impact) -> MotionAtTime {
         let cos_coefficient = parameters.obstacle_offset() - parameters.gamma() * (parameters.forcing_frequency()*impact.time()).cos();
         
         let sin_coefficient = -(parameters.coefficient_of_restitution() * impact.velocity()) + parameters.forcing_frequency() * parameters.gamma() * (parameters.forcing_frequency()*impact.time()).sin();
@@ -58,7 +58,7 @@ impl MotionAtTime {
             impact_time: impact.time(), 
             cos_coefficient: cos_coefficient, 
             sin_coefficient: sin_coefficient, 
-            long_excursion_checker: LongExcursionChecker::new(parameters.maximum_periods(), converter, impact.time())}
+            long_excursion_checker: LongExcursionChecker::new(parameters.maximum_periods(), parameters.converter(), impact.time())}
     }
 
     pub fn state(&self, time: Time) -> StateOfMotion {
@@ -76,18 +76,17 @@ impl MotionAtTime {
 }
 
 #[derive(Debug)]
-pub struct MotionGenerator {
-    parameters: Parameters,
-    converter: PhaseConverter
+pub struct MotionGenerator<'a> {
+    parameters: &'a Parameters
 }
 
-impl MotionGenerator {
-    fn new(parameters: Parameters) -> MotionGenerator {
-        MotionGenerator{parameters: parameters, converter: PhaseConverter::new(parameters.forcing_frequency()).unwrap()}
+impl<'a> MotionGenerator<'a> {
+    fn new(parameters: &'a Parameters) -> MotionGenerator<'a> {
+        MotionGenerator{parameters: parameters}
     }
 
     pub fn generate(&self, impact: Impact) -> MotionAtTime {
-        MotionAtTime::new(self.parameters, self.converter, impact)
+        MotionAtTime::new(self.parameters, impact)
     }
 }
 
@@ -107,20 +106,20 @@ impl SearchParameters {
     }
 }
 
-pub struct MotionBetweenImpacts {
+pub struct MotionBetweenImpacts<'a> {
     //
     // Generates a trajectory from one impact to the next
     //
-	motion_generator: MotionGenerator,
-	sticking: Sticking,
+	motion_generator: MotionGenerator<'a>,
+	sticking: Sticking<'a>,
 	search: SearchParameters,
 	offset: Distance
 }
 
-impl MotionBetweenImpacts {
+impl<'a> MotionBetweenImpacts<'a> {
 
-    fn new(parameters: Parameters) -> MotionBetweenImpacts {
-        let sticking = Sticking::new(parameters).unwrap();
+    fn new(parameters: &'a Parameters) -> MotionBetweenImpacts<'a> {
+        let sticking = Sticking::new(parameters);
 
         MotionBetweenImpacts{motion_generator: MotionGenerator::new(parameters), sticking: sticking, search: SearchParameters::default(), offset: parameters.obstacle_offset()}
     }
@@ -174,7 +173,7 @@ impl MotionBetweenImpacts {
                     step_size *= -0.5;
                 }
             } else if current_state.displacement > self.offset {
-                if (step_size > 0.0) {
+                if step_size > 0.0 {
                     step_size *= -0.5;
                 }
             } else {
@@ -182,7 +181,7 @@ impl MotionBetweenImpacts {
                 step_size = 0.0;
             }
 
-            if (motion_model.long_excursion_checker.check(current_time)) {
+            if motion_model.long_excursion_checker.check(current_time) {
                 result.found_impact = false;
             }
         }

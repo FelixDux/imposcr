@@ -2,6 +2,7 @@ use super::model_types::Frequency as Frequency;
 use super::model_types::Distance as Distance;
 use super::model_types::Coefficient as Coefficient;
 use super::model_types::ParameterError as ParameterError;
+use super::forcing_phase::PhaseConverter as PhaseConverter;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Parameters {
@@ -9,19 +10,18 @@ pub struct Parameters {
 	coefficient_of_restitution: Coefficient,
 	obstacle_offset: Distance,
 	gamma: Coefficient,
-	maximum_periods: u32 // maximum forcing periods to detect impact
+	maximum_periods: u32, // maximum forcing periods to detect impact
+    converter: PhaseConverter
 }
 
 impl Parameters {
     pub fn new(frequency: Frequency, offset: Distance, r: Coefficient, max_periods: u32) -> Result<Parameters, Vec<ParameterError>> {
         let mut error_list: Vec<ParameterError> = vec![];
 
-        if frequency == 0.0 {
-            error_list.push(ParameterError::ZeroForcingFrequency);
-        }
+        let converter_result = PhaseConverter::new(frequency);
 
-        if 0.0 > frequency {
-            error_list.push(ParameterError::NegativeForcingFrequency{frequency: frequency});
+        if !converter_result.is_ok() {
+            error_list.push(converter_result.unwrap_err());
         }
 
         if frequency == 1.0 {
@@ -44,7 +44,7 @@ impl Parameters {
             return Err(error_list);
         }
 
-        Ok(Parameters{forcing_frequency: frequency, obstacle_offset: offset, coefficient_of_restitution: r, maximum_periods: max_periods, gamma: 1.0/(1.0 - frequency.powi(2))})
+        Ok(Parameters{forcing_frequency: frequency, obstacle_offset: offset, coefficient_of_restitution: r, maximum_periods: max_periods, gamma: 1.0/(1.0 - frequency.powi(2)), converter: converter_result.unwrap()})
     }
 
     pub fn forcing_frequency(&self) -> Frequency {
@@ -65,6 +65,10 @@ impl Parameters {
 
     pub fn maximum_periods(&self) -> u32 {
         self.maximum_periods
+    }
+
+    pub fn converter(&self) -> &PhaseConverter {
+        &(self.converter)
     }
 }
 #[cfg(test)]

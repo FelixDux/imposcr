@@ -29,13 +29,13 @@ pub struct Impact {
 }
 
 #[derive(Debug)]
-pub struct ImpactGenerator {
-	converter: PhaseConverter
+pub struct ImpactGenerator<'a> {
+	converter: &'a PhaseConverter
 }
 
-impl ImpactGenerator
+impl<'a> ImpactGenerator<'a>
 {
-	pub fn new(converter: PhaseConverter) -> ImpactGenerator {
+	pub fn new(converter: &'a PhaseConverter) -> ImpactGenerator<'a> {
 		ImpactGenerator{converter: converter}
 	}
 
@@ -132,7 +132,7 @@ mod tests {
 	fn default_impact_comparison() -> () {
 		let converter = PhaseConverter::new(2.0).unwrap();
 
-		let generator = ImpactGenerator{converter: converter};
+		let generator = ImpactGenerator{converter: &converter};
 
 		let comparer = default_impact_comparer();
 
@@ -156,7 +156,7 @@ mod tests {
 	fn test_impact_dual() {
 		let converter = PhaseConverter::new(2.0).unwrap();
 
-		let generator = ImpactGenerator{converter: converter};
+		let generator = ImpactGenerator{converter: &converter};
 
 		let impact = generator.generate(0.3, 1.2);
 

@@ -22,7 +22,7 @@ impl PhaseConverter {
     /// # Examples
     /// 
     /// ```
-    /// let converter = PhaseConverter(3.87);
+    /// let converter = PhaseConverter(3.87).unwrap();
     /// ```
     pub fn new(frequency: Frequency) -> Result<PhaseConverter, ParameterError> {
         if frequency == 0.0 {
