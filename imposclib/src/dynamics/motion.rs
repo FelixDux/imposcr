@@ -3,14 +3,11 @@
 //
 use super::parameters::Parameters as Parameters;
 use super::forcing_phase::PhaseConverter as PhaseConverter;
-use super::model_types::Phase as Phase;
 use super::model_types::Time as Time;
 use super::model_types::Distance as Distance;
 use super::model_types::Velocity as Velocity;
-use super::model_types::ParameterError as ParameterError;
 use super::model_types::Coefficient as Coefficient;
 use super::impact::Impact as Impact;
-use super::impact::ImpactGenerator as ImpactGenerator;
 use super::sticking::Sticking as Sticking;
 
 pub struct StateOfMotion {
@@ -88,6 +85,10 @@ impl<'a> MotionGenerator<'a> {
     pub fn generate(&self, impact: Impact) -> MotionAtTime {
         MotionAtTime::new(self.parameters, impact)
     }
+
+    pub fn parameters(&self) -> &'a Parameters {
+        self.parameters
+    }
 }
 
 #[derive(Debug)]
@@ -118,7 +119,7 @@ pub struct MotionBetweenImpacts<'a> {
 
 impl<'a> MotionBetweenImpacts<'a> {
 
-    fn new(parameters: &'a Parameters) -> MotionBetweenImpacts<'a> {
+    pub fn new(parameters: &'a Parameters) -> MotionBetweenImpacts<'a> {
         let sticking = Sticking::new(parameters);
 
         MotionBetweenImpacts{motion_generator: MotionGenerator::new(parameters), sticking: sticking, search: SearchParameters::default(), offset: parameters.obstacle_offset()}
@@ -128,7 +129,7 @@ impl<'a> MotionBetweenImpacts<'a> {
         self.motion_generator.generate(impact)
     }
 
-    fn new_next_impact_result(&self, impact: Impact) -> NextImpactResult {
+    pub fn new_next_impact_result(&self, impact: Impact) -> NextImpactResult {
 
         let mut trajectory: Vec<StateOfMotion> = vec![];
         
@@ -146,7 +147,7 @@ impl<'a> MotionBetweenImpacts<'a> {
         NextImpactResult::new()
     }
 
-    fn next_impact(&self, impact: Impact) -> NextImpactResult {
+    pub fn next_impact(&self, impact: Impact) -> NextImpactResult {
 
         let mut result = self.new_next_impact_result(impact);
 
@@ -189,6 +190,13 @@ impl<'a> MotionBetweenImpacts<'a> {
         result
     }
 
+    pub fn generator(&self) -> &'a MotionGenerator {
+        &self.motion_generator
+    }
+
+    pub fn sticking(&self) -> &'a Sticking {
+        &self.sticking
+    }
 }
 
 pub struct NextImpactResult {

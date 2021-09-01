@@ -4,3 +4,4 @@ mod model_types;
 mod parameters;
 mod sticking;
 mod motion;
+mod chatter;

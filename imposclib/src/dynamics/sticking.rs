@@ -2,7 +2,6 @@ use super::parameters::Parameters as Parameters;
 use super::forcing_phase::PhaseConverter as PhaseConverter;
 use super::model_types::Phase as Phase;
 use super::model_types::Time as Time;
-use super::model_types::ParameterError as ParameterError;
 use super::impact::Impact as Impact;
 use super::impact::ImpactGenerator as ImpactGenerator;
 
@@ -99,6 +98,10 @@ impl<'a> Sticking<'a> {
     	} else {
     		return ReleaseImpact{new_impact: false, impact: impact}
     	}
+    }
+
+	pub fn generate(&self, impact_time: Time) -> Impact  {
+        self.generator.generate(impact_time, 0.0)
     }
 }
 
