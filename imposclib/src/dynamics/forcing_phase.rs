@@ -34,8 +34,8 @@ impl PhaseConverter {
         }
     }
 
-    pub fn time_to_phase(&self, simtime: Time) -> Phase {
-        let scaled_time = simtime / self.period;
+    pub fn time_to_phase(&self, sim_time: Time) -> Phase {
+        let scaled_time = sim_time / self.period;
 
         scaled_time - scaled_time.floor()
     }
@@ -44,18 +44,18 @@ impl PhaseConverter {
         phase * self.period
     }
 
-    pub fn forward_to_phase(&self, starttime: Time, phase: Phase) -> Time {
-        let mut phase_change = phase - self.time_to_phase(starttime);
+    pub fn forward_to_phase(&self, start_time: Time, phase: Phase) -> Time {
+        let mut phase_change = phase - self.time_to_phase(start_time);
 
         if phase_change < 0.0 {
             phase_change += 1.0;
         }
 
-        starttime + self.time_into_cycle(phase_change)
+        start_time + self.time_into_cycle(phase_change)
     }
 
-    pub fn difference_in_periods (&self, starttime: Time, endtime: Time) -> i32 {
-        ((endtime - starttime).abs()/self.period).floor() as i32
+    pub fn difference_in_periods (&self, start_time: Time, end_time: Time) -> i32 {
+        ((end_time - start_time).abs()/self.period).floor() as i32
     }
 
     pub fn period(&self) -> Time {
