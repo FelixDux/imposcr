@@ -20,7 +20,7 @@ impl ReleaseImpact {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct Sticking<'a> {
 	phase_in: Phase,
 	phase_out: Phase,
@@ -29,12 +29,22 @@ pub struct Sticking<'a> {
 }
 
 impl<'a> Sticking<'a> {
+    pub fn phase_in(&self) -> Phase {
+        self.phase_in
+    }
+
+    pub fn phase_out(&self) -> Phase {
+        self.phase_out
+    }
+}
+
+impl<'a> Sticking<'a> {
     pub fn new(parameters: &'a Parameters) -> Sticking {
     
         let converter = parameters.converter();
 
-        let mut phase_in = 0.0;
-        let mut phase_out = 0.0;
+        let phase_in;
+        let phase_out;
 
         if 1.0 <= parameters.obstacle_offset() {
             // No self

@@ -10,11 +10,26 @@ use super::model_types::Coefficient as Coefficient;
 use super::impact::Impact as Impact;
 use super::sticking::Sticking as Sticking;
 
+#[derive(Debug, Copy, Clone)]
 pub struct StateOfMotion {
 	// 	State and phase variables for the motion between impacts
 	time: Time,
 	displacement: Distance,
 	velocity: Velocity
+}
+
+impl StateOfMotion {
+    pub fn time(&self) -> Time {
+        self.time
+    }
+
+    pub fn displacement(&self) -> Distance {
+        self.displacement
+    }
+
+    pub fn velocity(&self) -> Velocity {
+        self.velocity
+    }
 }
 
 #[derive(Debug)]
@@ -72,7 +87,7 @@ impl<'a> MotionAtTime<'a> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct MotionGenerator<'a> {
     parameters: &'a Parameters
 }
@@ -91,7 +106,7 @@ impl<'a> MotionGenerator<'a> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct SearchParameters {
 	initial_step_size: Time,
 	minimum_step_size: Time
@@ -107,6 +122,7 @@ impl SearchParameters {
     }
 }
 
+#[derive(Debug, Copy, Clone)]
 pub struct MotionBetweenImpacts<'a> {
     //
     // Generates a trajectory from one impact to the next
@@ -129,27 +145,9 @@ impl<'a> MotionBetweenImpacts<'a> {
         self.motion_generator.generate(impact)
     }
 
-    pub fn new_next_impact_result(&self, impact: Impact) -> NextImpactResult {
-
-        let mut trajectory: Vec<StateOfMotion> = vec![];
-        
-        trajectory.push(StateOfMotion {time: impact.time(), displacement: self.offset, velocity: impact.velocity()});
-        
-        let release_impact = self.sticking.check_impact(impact);
-        
-        if release_impact.new_impact() {
-            trajectory.push(StateOfMotion{
-                time: release_impact.impact().time(), 
-                displacement: self.offset, 
-                velocity: release_impact.impact().velocity()})
-        }
-
-        NextImpactResult::new()
-    }
-
     pub fn next_impact(&self, impact: Impact) -> NextImpactResult {
 
-        let mut result = self.new_next_impact_result(impact);
+        let mut result = NextImpactResult::new(&self, impact);
 
         result.found_impact = true;
 
@@ -205,11 +203,33 @@ pub struct NextImpactResult {
 }
 
 impl NextImpactResult {
-    fn new() -> NextImpactResult {
-        NextImpactResult{motion: vec![], found_impact: false}
+    fn new(motion: &MotionBetweenImpacts, impact: Impact) -> NextImpactResult {
+
+        let mut trajectory: Vec<StateOfMotion> = vec![];
+        
+        trajectory.push(StateOfMotion {time: impact.time(), displacement: motion.offset, velocity: impact.velocity()});
+        
+        let release_impact = motion.sticking.check_impact(impact);
+        
+        if release_impact.new_impact() {
+            trajectory.push(StateOfMotion{
+                time: release_impact.impact().time(), 
+                displacement: motion.offset, 
+                velocity: release_impact.impact().velocity()})
+        }
+
+        NextImpactResult{motion: trajectory, found_impact: false}
     }
 
     pub fn grow(&mut self, state: StateOfMotion) -> () {
         self.motion.push(state);
+    }
+
+    pub fn last(&self) -> StateOfMotion {
+        *self.motion.last().unwrap()
+    }
+
+    pub fn found_impact(&self) -> bool {
+        self.found_impact
     }
 }

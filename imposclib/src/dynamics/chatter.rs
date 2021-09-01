@@ -11,6 +11,16 @@ pub struct ChatterResult {
 	accumulation_impact: Impact
 }
 
+impl ChatterResult {
+    pub fn is_chatter(&self) -> bool {
+        self.is_chatter
+    }
+
+    pub fn accumulation_impact(&self) -> Impact {
+        self.accumulation_impact
+    }
+}
+
 pub struct ChatterChecker<'a> {
 	
 	// Detects and numerically approximates 'Chatter', which is when an infinite sequence of impact.Impacts accumulates 
@@ -20,15 +30,14 @@ pub struct ChatterChecker<'a> {
 		
 		velocity_threshold: Velocity,
 		count_threshold: u32,
-		sticking: &'a Sticking<'a>,
-        parameters: &'a Parameters,
+		sticking: Sticking<'a>,
+        parameters: Parameters,
 		can_chatter: bool,
 		impact_count: u32
 }
 
 impl<'a> ChatterChecker<'a> {
-    pub fn new(motion: &'a MotionBetweenImpacts, velocity_threshold: Velocity, count_threshold: u32) -> ChatterChecker<'a> {
-        let parameters = motion.generator().parameters();
+    pub fn new(parameters: &'a Parameters, velocity_threshold: Velocity, count_threshold: u32) -> ChatterChecker<'a> {
 
         let can_chatter = parameters.coefficient_of_restitution() < 1.0 && parameters.coefficient_of_restitution() >=0.0;
 
@@ -37,8 +46,8 @@ impl<'a> ChatterChecker<'a> {
                 count_threshold: count_threshold,
                 impact_count: 0,
                 can_chatter: can_chatter,
-                sticking: motion.sticking(),
-                parameters: motion.generator().parameters()
+                sticking: Sticking::new(parameters),
+                parameters: *parameters
             }
     }
 
@@ -68,7 +77,11 @@ impl<'a> ChatterChecker<'a> {
         ChatterResult{is_chatter: false, accumulation_impact: impact}
     }
 
-    pub fn default(motion: &'a MotionBetweenImpacts) -> ChatterChecker<'a> {
-        ChatterChecker::new(motion, 0.05, 10)
+    pub fn default(parameters: &'a Parameters) -> ChatterChecker<'a> {
+        ChatterChecker::new(parameters, 0.05, 10)
+    }
+
+    pub fn sticking(&self) -> & Sticking {
+        &self.sticking
     }
 }

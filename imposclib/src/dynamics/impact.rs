@@ -2,6 +2,7 @@ use super::forcing_phase::PhaseConverter as PhaseConverter;
 use super::model_types::Time as Time;
 use super::model_types::Phase as Phase;
 use super::model_types::Velocity as Velocity;
+use super::model_types::Coefficient as Coefficient;
 use float_eq::FloatEq;
 
 /// Each impact is uniquely specified by two parameters:
@@ -28,7 +29,7 @@ pub struct Impact {
 	time: Time
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct ImpactGenerator<'a> {
 	converter: &'a PhaseConverter
 }
@@ -94,7 +95,7 @@ impl Impact{
 		self.time
 	}
 
-	pub fn dual_impact(&self, coefficient_of_restitution: f64) -> Impact {
+	pub fn dual_impact(&self, coefficient_of_restitution: Coefficient) -> Impact {
 		// Returns the dual of an impact. If an impact is the image of a zero-velocity impact, then
 		// its dual is the pre-image of the same zero-velocity impact. This is only well-defined for
 		// non-zero coefficient of restitution. For the zero-restitution case, all impacts behave like
@@ -113,14 +114,6 @@ impl Impact{
 					time: -self.time}
 		}
 	}
-}
-
-type ImpactTransform = dyn Fn(Impact) -> Impact;
-
-fn dual_maker(coefficient_of_restitution: f64) -> Box<ImpactTransform> {
-	Box::new(move |i: Impact| -> Impact {
-		i.dual_impact(coefficient_of_restitution)
-	})
 }
 
 

@@ -5,3 +5,4 @@ mod parameters;
 mod sticking;
 mod motion;
 mod chatter;
+mod impact_map;
