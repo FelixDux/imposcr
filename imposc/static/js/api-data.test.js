@@ -5,7 +5,7 @@ const mockObject = {a: 1, b: 2};
 test('Object converts correctly to key-value pairs', () => {
     const kv = kvObjectToPairs(mockObject);
 
-    expect(kv).toStrictEqual([[',1],['b',2]]);
+    expect(kv).toStrictEqual([['a',1],['b',2]]);
 })
 
 const mockAPIDetail = {key: "value"};

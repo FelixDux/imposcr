@@ -44,14 +44,18 @@ $(DEVELOPDIR)/$(MARKER): venv
 	source $(VENV)/activate && cd imposclib && maturin develop
 	$(TOUCH) $(DEVELOPDIR)/$(MARKER)
 
-.PHONY: cargo-test pytest test
+.PHONY: npm-install
+npm-install:
+	cd imposc/static && npm install
+
+.PHONY: cargo-test pytest test jstest
 cargo-test:
 	cd imposclib && cargo test
 
 pytest: develop
 	cd imposc && $(VENV)/python -m pytest
 
-jstest:
+jstest: npm-install
 	cd imposc/static && npm test
 
 test: cargo-test pytest jstest
