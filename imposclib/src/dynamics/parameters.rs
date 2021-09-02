@@ -84,6 +84,7 @@ mod tests {
         expected_errors: usize
     }
     
+    #[test]
     fn test_parameter_errors() {
 
         let parameter_error_tests = vec![

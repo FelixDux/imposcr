@@ -99,7 +99,7 @@ impl<'a> ImpactMap<'a> {
     }
 
     // Convenient overload
-    pub fn IterateFromPoint(&mut self, phi: Phase, v: Velocity, num_iterations: u32) -> IterationResult {
+    pub fn iterate_from_point(&mut self, phi: Phase, v: Velocity, num_iterations: u32) -> IterationResult {
         let t = self.converter().time_into_cycle(phi);
         self.iterate(self.generate_impact(t, v), num_iterations)
     }
