@@ -1,6 +1,6 @@
 # look here https://github.com/sio/Makefile.venv
-
-.PHONY: refresh venv
+SHELL := /bin/bash
+.PHONY: refresh venv pyenv
 
 PY?=python3.9
 MARKER=.initialized-with-Makefile.venv
@@ -11,6 +11,8 @@ LIBDIR=$(realpath ./imposclib)
 TARGET?=$(LIBDIR)/target
 DEVELOPDIR=$(VENVDIR)/lib/$(PY)/site-packages/imposclib
 REQUIREMENTS_DEV=$(IMPOSCDIR)/requirements-dev.txt
+TOUCH=touch
+
 
 venv: $(VENV)/$(MARKER)
 
@@ -22,7 +24,7 @@ $(REQUIREMENTS_DEV): $(VENV)
 	$(VENV)/python -m pip install -r $(REQUIREMENTS_DEV)
 
 $(VENV)/$(MARKER): $(REQUIREMENTS_DEV)
-	touch $(VENV)/$(MARKER)
+	$(TOUCH) $(VENV)/$(MARKER)
 
 .PHONY: clean-venv
 clean-venv:
@@ -40,7 +42,7 @@ develop: $(DEVELOPDIR)/$(MARKER)
 
 $(DEVELOPDIR)/$(MARKER): venv
 	source $(VENV)/activate && cd imposclib && maturin develop
-	touch $(DEVELOPDIR)/$(MARKER)
+	$(TOUCH) $(DEVELOPDIR)/$(MARKER)
 
 .PHONY: cargo-test pytest test
 cargo-test:
