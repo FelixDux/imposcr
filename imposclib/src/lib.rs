@@ -206,10 +206,25 @@ impl From<Vec<(&str, &str)>> for ParameterProperties {
     }
 }
 
+use crate::dynamics::parameters::Parameters as Parameters;
+use crate::dynamics::model_types::ParameterError as ParameterError;
+use crate::dynamics::impact::Impact as Impact;
+
+#[pyclass]
+#[derive(Clone, Default)]
+pub struct IterationInputs {
+    frequency: f64,
+    offset: f64,
+    r: f64,
+    max_periods: u32,
+    phi: f64,
+    v: f64,
+    num_iterations: u32
+}
 
 #[cfg(test)]
 mod tests {
-    use crate::ParameterProperties;
+    use super::*;
 
     #[test]
     fn can_access_parameter_properties() {

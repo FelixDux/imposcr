@@ -1,8 +1,8 @@
 mod forcing_phase;
-mod impact;
-mod model_types;
-mod parameters;
+pub mod impact;
+pub mod model_types;
+pub mod parameters;
 mod sticking;
 mod motion;
 mod chatter;
-mod impact_map;
+pub mod impact_map;

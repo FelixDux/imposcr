@@ -5,10 +5,15 @@ from main import app
 
 client = TestClient(app)
 
-def get_response_for_test(path, status):
+def get_response_for_test(path):
     response = client.get(path)
-    assert response.status_code == status
-    return response.json()
+    
+    return response.json(), response.status_code
+
+def post_response_for_test(path, input_json):
+    response = client.post(path, json=input_json)
+
+    return response.json(), response.status_code
 
 def test_read_main():
     response = client.get("/")
@@ -19,11 +24,10 @@ def test_read_main():
     ("groups", 200, {"Properties":[{"Parameter":"frequency","Property":"System parameters"},{"Parameter":"offset","Property":"System parameters"},{"Parameter":"r","Property":"System parameters"},{"Parameter":"phi","Property":"Initial impact"},{"Parameter":"v","Property":"Initial impact"},{"Parameter":"maxPeriods","Property":"Control parameters"},{"Parameter":"numIterations","Property":"Control parameters"},{"Parameter":"numPoints","Property":"Control parameters"}]}),
 ])
 def test_read_parameter_info(category, status, response_json):
-    # response = client.get(f"/api/parameter-info/{category}")
-    # assert response.status_code == status
-    # json = response.json()
 
-    json = get_response_for_test(f"/api/parameter-info/{category}", status)
+    json, actual_status = get_response_for_test(f"/api/parameter-info/{category}")
+
+    assert actual_status == status
     
     assert "Properties" in json
 
@@ -38,6 +42,19 @@ def test_read_parameter_info(category, status, response_json):
 @pytest.mark.parametrize(('category', 'status', 'response_json'), [("garbage", 404, {"detail": "Parameter info category not found"})
 ])
 def test_read_parameter_info_bad_path(category, status, response_json):
-    response = client.get(f"/api/parameter-info/{category}")
-    assert response.status_code == status
-    assert response.json() == response_json
+    json, actual_status = get_response_for_test(f"/api/parameter-info/{category}")
+
+    assert actual_status == status
+    assert json == response_json
+
+def test_get_impact_iteration():
+    input_json = {"frequency": 2.0,
+    "offset": 0.0,
+    "r": 0.8,
+    "max_periods": 100,
+    "phi": 0.0,
+    "v": 0.0,
+    "num_iterations": 2}
+    json, actual_status = post_response_for_test(f"/api/iteration/data", input_json)
+    assert actual_status == 200, f"{json}"
+    assert json
