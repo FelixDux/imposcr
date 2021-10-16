@@ -3,12 +3,17 @@
 // Using [PyO3](https://pyo3.rs/v0.14.1/), with [maturin](https://crates.io/crates/maturin) for distribution
 
 use pyo3::prelude::*;
-use pyo3::{PyIterProtocol, PyMappingProtocol};
+use pyo3::{PyIterProtocol, PyMappingProtocol, PySequenceProtocol};
 use pyo3::types::{PyDict, IntoPyDict};
 
 use std::convert::From;
 
 use std::collections::HashMap;
+
+mod io {
+    pyo3::import_exception!(io, IndexError);
+    pyo3::import_exception!(io, ValueError);
+}
 
 mod dynamics;
 
@@ -20,10 +25,14 @@ fn imposclib(_py: Python, m: &PyModule) -> PyResult<()> {
     // The `_py` argument represents that we're holding the GIL.
     m.add_class::<PropertyPair>()?;
     m.add_class::<ParameterProperties>()?;
+    m.add_class::<PyImpact>()?;
+    m.add_class::<IterationInputs>()?;
+    m.add_class::<IterationOutputs>()?;
     
     m.add_function(wrap_pyfunction!(app_info, m)?)?;
     m.add_function(wrap_pyfunction!(symbol_properties, m)?)?;
     m.add_function(wrap_pyfunction!(group_properties, m)?)?;
+    m.add_function(wrap_pyfunction!(iterate, m)?)?;
 
     Ok(())
 }
@@ -208,7 +217,11 @@ impl From<Vec<(&str, &str)>> for ParameterProperties {
 
 use crate::dynamics::parameters::Parameters as Parameters;
 use crate::dynamics::model_types::ParameterError as ParameterError;
-use crate::dynamics::impact::Impact as Impact;
+use crate::dynamics::model_types::Phase as Phase;
+use crate::dynamics::model_types::Velocity as Velocity;
+use crate::dynamics::impact::SimpleImpact as SimpleImpact;
+use crate::dynamics::impact_map::IterationResult as IterationResult;
+use crate::dynamics::impact_map::ImpactMap as ImpactMap;
 
 #[pyclass]
 #[derive(Clone, Default)]
@@ -220,6 +233,211 @@ pub struct IterationInputs {
     phi: f64,
     v: f64,
     num_iterations: u32
+}
+
+#[pymethods]
+impl IterationInputs {
+    #[new]
+    fn new(frequency: f64,
+        offset: f64,
+        r: f64,
+        max_periods: u32,
+        phi: f64,
+        v: f64,
+        num_iterations: u32) -> PyResult<Self>
+    {
+        Ok(IterationInputs
+        {
+            frequency: frequency,
+            offset: offset,
+            r: r,
+            max_periods: max_periods,
+            phi: phi,
+            v: v,
+            num_iterations: num_iterations
+        })
+    }
+
+}
+
+impl IterationInputs {
+    fn get_parameters(&self) -> Result<Parameters, Vec<ParameterError>> {
+        Parameters::new(self.frequency, self.offset, self.r, self.max_periods)
+    }
+
+    fn mapper(&self) -> Result<ImpactMap, Vec<ParameterError>> {
+        match self.get_parameters() {
+            Err(errors) => Err(errors),
+
+            Ok(params) => Ok(ImpactMap::new(params))
+        }
+    }
+
+    pub fn iterate(&self)-> Result<IterationResult, Vec<ParameterError>> {
+        let result = self.mapper()?.iterate_from_point(self.phi, self.v, self.num_iterations);
+
+        Ok(result)
+    }
+}
+
+#[pyclass]
+#[derive(Clone, Default)]
+pub struct PyImpact {
+	phase: Phase,
+	velocity: Velocity
+}
+
+#[pymethods]
+impl PyImpact {
+    #[new]
+    fn new() -> PyResult<Self>
+    {
+        Ok(PyImpact
+        {
+            phase: 0.0,
+            velocity: 0.0,
+        })
+    }
+
+}
+
+impl From<SimpleImpact> for PyImpact {
+    fn from(impact: SimpleImpact) -> PyImpact {
+        PyImpact {
+            phase: 0.0,
+            velocity: 0.0,
+        }
+    }
+}
+
+#[pyproto]
+impl PyIterProtocol for PyImpact {
+    fn __iter__(slf: PyRefMut<Self>) -> PyResult<PyObject> {
+        let impact = &*slf;
+        let gil = Python::acquire_gil();
+        let py = gil.python();
+        let vals = vec![(String::from("phase"), impact.phase), (String::from("velocity"), impact.velocity)];
+        let iter = IntoPy::into_py(
+            Py::new(py, PyPyImpactIter::new(vals))?,
+            py,
+        );
+
+        Ok(iter)
+    }
+}
+
+#[pyclass(name = "PyImpactIter")]
+pub struct PyPyImpactIter {
+    v: std::vec::IntoIter<(String, f64)>,
+}
+
+impl PyPyImpactIter {
+    pub fn new(v: Vec<(String, f64)>) -> Self {
+        PyPyImpactIter { v: v.into_iter() }
+    }
+}
+
+#[pyproto]
+impl PyIterProtocol for PyPyImpactIter {
+    fn __iter__(slf: PyRefMut<Self>) -> PyResult<Py<PyPyImpactIter>> {
+        Ok(slf.into())
+    }
+
+    fn __next__(mut slf: PyRefMut<Self>) -> PyResult<Option<(String, f64)>> {
+        let slf = &mut *slf;
+        Ok(slf.v.next())
+    }
+}
+
+#[pyclass]
+#[derive(Clone, Default)]
+pub struct IterationOutputs {
+	impacts: Vec<SimpleImpact>,
+
+	long_excursions: bool
+}
+
+#[pymethods]
+impl IterationOutputs {
+    #[new]
+    fn new() -> PyResult<Self>
+    {
+        Ok(IterationOutputs
+        {
+            impacts: vec![],
+            long_excursions: false
+        })
+    }
+
+}
+
+impl From<&IterationResult> for IterationOutputs {
+    fn from(result: &IterationResult) -> IterationOutputs {
+        IterationOutputs {
+            long_excursions: result.has_long_excursions(),
+            impacts: result.trajectory().iter().map(|&impact| impact.get_simple_impact()).collect()
+        }
+    }
+}
+
+fn make_idx_usable (idx: isize, size: usize) -> usize {
+    if idx < 0 {
+        return make_idx_usable(idx + size as isize, size)
+    }
+
+    idx as usize
+}
+
+#[pyproto]
+impl PySequenceProtocol for IterationOutputs {
+    fn __len__(&self) -> PyResult<usize> {
+        Ok(self.impacts.len())
+    }
+
+    fn __getitem__(&self, idx: isize) -> PyResult<PyImpact> {
+
+        let usable_idx = |idx: isize| -> usize {make_idx_usable(idx, self.impacts.len())};
+
+        let idx_to_use = usable_idx(idx);
+
+        if idx_to_use >= self.impacts.len() {
+            use pyo3::exceptions::*;
+            return Err(PyIndexError::new_err("Invalid index"));
+        }
+
+        Ok(PyImpact::from(self.impacts[idx_to_use]))
+    }
+}
+
+#[pyclass(name = "IterationOutputsIter")]
+pub struct PyIterationOutputsIter {
+    v: std::vec::IntoIter<PyImpact>,
+}
+
+impl PyIterationOutputsIter {
+    pub fn new(v: Vec<PyImpact>) -> Self {
+        PyIterationOutputsIter { v: v.into_iter() }
+    }
+}
+
+#[pyproto]
+impl PyIterProtocol for PyIterationOutputsIter {
+    fn __iter__(slf: PyRefMut<Self>) -> PyResult<Py<PyIterationOutputsIter>> {
+        Ok(slf.into())
+    }
+
+    fn __next__(mut slf: PyRefMut<Self>) -> PyResult<Option<PyImpact>> {
+        let slf = &mut *slf;
+        Ok(slf.v.next())
+    }
+}
+
+
+#[pyfunction]
+fn iterate(inputs: IterationInputs) -> IterationOutputs {
+    let result = inputs.iterate().unwrap();
+
+    IterationOutputs::from(&result)
 }
 
 #[cfg(test)]

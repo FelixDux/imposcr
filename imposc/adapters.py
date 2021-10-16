@@ -1,4 +1,4 @@
-from imposclib.imposclib import ParameterProperties, symbol_properties, group_properties, app_info
+from imposclib.imposclib import ParameterProperties, symbol_properties, group_properties, app_info, iterate, IterationInputs, IterationOutputs
 from typing import Optional, Dict, Iterable
 from logging import log
 
@@ -18,3 +18,6 @@ def parameter_info(category: str) -> Optional[Dict]:
         return from_parameter_properties(group_properties())
     else:
         return None
+
+def iterate_impacts(inputs: IterationInputs) -> IterationOutputs:
+    return iterate(inputs)
