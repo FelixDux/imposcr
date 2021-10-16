@@ -33,14 +33,14 @@ impl StateOfMotion {
 }
 
 #[derive(Debug)]
-pub struct LongExcursionChecker<'a> {
-    converter: &'a PhaseConverter,
+pub struct LongExcursionChecker {
+    converter: PhaseConverter,
     from_time: Time,
     maximum_periods: u32
 }
 
-impl<'a> LongExcursionChecker<'a> {
-    fn new(maximum_periods: u32, converter: &'a PhaseConverter, from_time: Time) -> LongExcursionChecker {
+impl LongExcursionChecker {
+    fn new(maximum_periods: u32, converter: PhaseConverter, from_time: Time) -> LongExcursionChecker {
         LongExcursionChecker{converter: converter, from_time: from_time, maximum_periods: maximum_periods}
     }
 
@@ -50,17 +50,17 @@ impl<'a> LongExcursionChecker<'a> {
 }
 
 #[derive(Debug)]
-pub struct MotionAtTime<'a> {	
+pub struct MotionAtTime {	
 	// Coefficients for time evolution of the system from one impact to the next 
-	parameters: &'a Parameters,
+	parameters: Parameters,
 	impact_time: Time,
 	cos_coefficient: Coefficient,
 	sin_coefficient: Coefficient,
-	long_excursion_checker: LongExcursionChecker<'a>
+	long_excursion_checker: LongExcursionChecker
 }
 
-impl<'a> MotionAtTime<'a> {
-    fn new(parameters: &'a Parameters, impact: Impact) -> MotionAtTime {
+impl MotionAtTime {
+    fn new(parameters: Parameters, impact: Impact) -> MotionAtTime {
         let cos_coefficient = parameters.obstacle_offset() - parameters.gamma() * (parameters.forcing_frequency()*impact.time()).cos();
         
         let sin_coefficient = -(parameters.coefficient_of_restitution() * impact.velocity()) + parameters.forcing_frequency() * parameters.gamma() * (parameters.forcing_frequency()*impact.time()).sin();
@@ -88,12 +88,12 @@ impl<'a> MotionAtTime<'a> {
 }
 
 #[derive(Debug, Copy, Clone)]
-pub struct MotionGenerator<'a> {
-    parameters: &'a Parameters
+pub struct MotionGenerator {
+    parameters: Parameters
 }
 
-impl<'a> MotionGenerator<'a> {
-    fn new(parameters: &'a Parameters) -> MotionGenerator<'a> {
+impl MotionGenerator {
+    fn new(parameters: Parameters) -> MotionGenerator {
         MotionGenerator{parameters: parameters}
     }
 
@@ -101,7 +101,7 @@ impl<'a> MotionGenerator<'a> {
         MotionAtTime::new(self.parameters, impact)
     }
 
-    pub fn parameters(&self) -> &'a Parameters {
+    pub fn parameters(&self) -> Parameters {
         self.parameters
     }
 }
@@ -123,19 +123,19 @@ impl SearchParameters {
 }
 
 #[derive(Debug, Copy, Clone)]
-pub struct MotionBetweenImpacts<'a> {
+pub struct MotionBetweenImpacts {
     //
     // Generates a trajectory from one impact to the next
     //
-	motion_generator: MotionGenerator<'a>,
-	sticking: Sticking<'a>,
+	motion_generator: MotionGenerator,
+	sticking: Sticking,
 	search: SearchParameters,
 	offset: Distance
 }
 
-impl<'a> MotionBetweenImpacts<'a> {
+impl MotionBetweenImpacts {
 
-    pub fn new(parameters: &'a Parameters) -> MotionBetweenImpacts<'a> {
+    pub fn new(parameters: Parameters) -> MotionBetweenImpacts {
         let sticking = Sticking::new(parameters);
 
         MotionBetweenImpacts{motion_generator: MotionGenerator::new(parameters), sticking: sticking, search: SearchParameters::default(), offset: parameters.obstacle_offset()}
@@ -188,12 +188,12 @@ impl<'a> MotionBetweenImpacts<'a> {
         result
     }
 
-    pub fn generator(&self) -> &'a MotionGenerator {
-        &self.motion_generator
+    pub fn generator(&self) -> MotionGenerator {
+        self.motion_generator
     }
 
-    pub fn sticking(&self) -> &'a Sticking {
-        &self.sticking
+    pub fn sticking(&self) -> Sticking {
+        self.sticking
     }
 }
 
@@ -231,5 +231,27 @@ impl NextImpactResult {
 
     pub fn found_impact(&self) -> bool {
         self.found_impact
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use super::super::impact::ImpactGenerator;
+
+    #[test]
+    fn test_motion_at_time() {
+        let parameters = Parameters::new(2.8, 0.0, 0.8, 100).unwrap();
+
+        let motion_generator = MotionGenerator::new(parameters);
+
+        let impact_generator = ImpactGenerator::new(parameters.converter());
+
+        let motion = motion_generator.generate(impact_generator.generate(0.0,1.0));
+
+        let state = motion.state(0.0);
+
+        assert_eq!(state.displacement, 0.0);
+        assert_eq!(state.velocity, -0.8);
     }
 }

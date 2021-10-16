@@ -67,8 +67,8 @@ impl Parameters {
         self.maximum_periods
     }
 
-    pub fn converter(&self) -> &PhaseConverter {
-        &(self.converter)
+    pub fn converter(&self) -> PhaseConverter {
+        self.converter
     }
 }
 #[cfg(test)]
@@ -109,5 +109,16 @@ mod tests {
                 assert_eq!(errors.len(), data.expected_errors);
             }
         }
+    }
+
+    #[test]
+    fn test_correct_values() {
+        let parameters = Parameters::new(3.0, 0.0, 0.8, 100).unwrap();
+
+        assert_eq!(parameters.forcing_frequency(), 3.0);
+        assert_eq!(parameters.obstacle_offset(), 0.0);
+        assert_eq!(parameters.coefficient_of_restitution(), 0.8);
+        assert_eq!(parameters.maximum_periods(), 100);
+        assert_eq!(parameters.gamma(), -0.125)
     }
 }

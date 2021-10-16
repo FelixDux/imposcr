@@ -17,6 +17,11 @@ pub struct IterationResult
 	long_excursions: bool
 }
 
+impl IterationResult {
+    pub fn trajectory(&self) -> &Trajectory {&self.impacts}
+    pub fn has_long_excursions(&self) -> bool {self.long_excursions}
+}
+
 pub struct ImpactResult 
 {
 	impact: Impact,
@@ -40,22 +45,24 @@ impl SingularitySetResult {
     }
 }
 
-pub struct ImpactMap<'a> {
+pub struct ImpactMap {
 	
 	// Transformation of the impact surface (an infinite half cylinder parametrised by phase and velocity)
 	// which maps impacts to impacts
 		
-	motion: MotionBetweenImpacts<'a>,
-	chatter_checker: ChatterChecker<'a>,
-	generator: ImpactGenerator<'a>,
+	motion: MotionBetweenImpacts,
+	chatter_checker: ChatterChecker,
+	generator: ImpactGenerator,
     coefficient_of_restitution: Coefficient
 }
 
-impl<'a> ImpactMap<'a> {
-    fn new(parameters: &'a Parameters) -> ImpactMap {
+impl ImpactMap {
+    pub fn new(parameters: Parameters) -> ImpactMap {
         let motion = MotionBetweenImpacts::new(parameters);
 
-        ImpactMap{motion: motion, chatter_checker: ChatterChecker::default(parameters), generator: ImpactGenerator::new(parameters.converter()), coefficient_of_restitution: parameters.coefficient_of_restitution()}
+        ImpactMap{motion: motion, chatter_checker: ChatterChecker::default(parameters), 
+        generator: ImpactGenerator::new(parameters.converter()), 
+        coefficient_of_restitution: parameters.coefficient_of_restitution()}
     }
 
     pub fn generate_impact(&self, time: Time, velocity: Velocity) -> Impact {
@@ -104,7 +111,7 @@ impl<'a> ImpactMap<'a> {
         self.iterate(self.generate_impact(t, v), num_iterations)
     }
 
-    pub fn converter(&self) -> &PhaseConverter {
+    pub fn converter(&self) -> PhaseConverter {
         return self.motion.generator().parameters().converter()
     }
 

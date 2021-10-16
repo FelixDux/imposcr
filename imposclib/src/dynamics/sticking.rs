@@ -21,14 +21,14 @@ impl ReleaseImpact {
 }
 
 #[derive(Debug, Copy, Clone)]
-pub struct Sticking<'a> {
+pub struct Sticking {
 	phase_in: Phase,
 	phase_out: Phase,
-	converter: &'a PhaseConverter,
-	generator: ImpactGenerator<'a>
+	converter: PhaseConverter,
+	generator: ImpactGenerator
 }
 
-impl<'a> Sticking<'a> {
+impl Sticking {
     pub fn phase_in(&self) -> Phase {
         self.phase_in
     }
@@ -38,8 +38,8 @@ impl<'a> Sticking<'a> {
     }
 }
 
-impl<'a> Sticking<'a> {
-    pub fn new(parameters: &'a Parameters) -> Sticking {
+impl Sticking {
+    pub fn new(parameters: Parameters) -> Sticking {
     
         let converter = parameters.converter();
 
@@ -131,7 +131,7 @@ mod tests {
         for frequency in frequencies.iter() {
             let params = Parameters::new(*frequency, offset, r, 100).unwrap();
     
-            let sticking = Sticking::new(&params);
+            let sticking = Sticking::new(params);
     
             let impact_time = 0.0;
     

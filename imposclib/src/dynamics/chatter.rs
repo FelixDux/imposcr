@@ -21,7 +21,7 @@ impl ChatterResult {
     }
 }
 
-pub struct ChatterChecker<'a> {
+pub struct ChatterChecker {
 	
 	// Detects and numerically approximates 'Chatter', which is when an infinite sequence of impact.Impacts accumulates 
 	// in a finite time on a 'sticking' impact. It is the analogue in this system to a real-world situation in 
@@ -30,14 +30,14 @@ pub struct ChatterChecker<'a> {
 		
 		velocity_threshold: Velocity,
 		count_threshold: u32,
-		sticking: Sticking<'a>,
+		sticking: Sticking,
         parameters: Parameters,
 		can_chatter: bool,
 		impact_count: u32
 }
 
-impl<'a> ChatterChecker<'a> {
-    pub fn new(parameters: &'a Parameters, velocity_threshold: Velocity, count_threshold: u32) -> ChatterChecker<'a> {
+impl ChatterChecker {
+    pub fn new(parameters: Parameters, velocity_threshold: Velocity, count_threshold: u32) -> ChatterChecker {
 
         let can_chatter = parameters.coefficient_of_restitution() < 1.0 && parameters.coefficient_of_restitution() >=0.0;
 
@@ -47,7 +47,7 @@ impl<'a> ChatterChecker<'a> {
                 impact_count: 0,
                 can_chatter: can_chatter,
                 sticking: Sticking::new(parameters),
-                parameters: *parameters
+                parameters: parameters
             }
     }
 
@@ -77,7 +77,7 @@ impl<'a> ChatterChecker<'a> {
         ChatterResult{is_chatter: false, accumulation_impact: impact}
     }
 
-    pub fn default(parameters: &'a Parameters) -> ChatterChecker<'a> {
+    pub fn default(parameters: Parameters) -> ChatterChecker {
         ChatterChecker::new(parameters, 0.05, 10)
     }
 
