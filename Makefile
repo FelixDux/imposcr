@@ -50,7 +50,7 @@ npm-install:
 
 .PHONY: cargo-test pytest test jstest
 cargo-test:
-	cd imposclib && cargo test
+	cd imposclib && RUST_LOG=debug cargo test
 
 pytest: develop
 	cd imposc && $(VENV)/python -m pytest
@@ -66,3 +66,6 @@ cargo-doc:
 
 run: develop
 	source $(VENV)/activate && cd $(IMPOSCDIR) && uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+run-debug: develop
+	source $(VENV)/activate && cd $(IMPOSCDIR) && RUST_LOG=debug uvicorn main:app --host 0.0.0.0 --port 8000 --reload

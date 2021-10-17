@@ -2,6 +2,8 @@
 // #![feature(result_contains_err)]
 // Using [PyO3](https://pyo3.rs/v0.14.1/), with [maturin](https://crates.io/crates/maturin) for distribution
 
+use log::debug;
+
 use pyo3::prelude::*;
 use pyo3::{PyIterProtocol, PyMappingProtocol, PySequenceProtocol};
 use pyo3::types::{PyDict, IntoPyDict};
@@ -224,7 +226,7 @@ use crate::dynamics::impact_map::IterationResult as IterationResult;
 use crate::dynamics::impact_map::ImpactMap as ImpactMap;
 
 #[pyclass]
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Debug)]
 pub struct IterationInputs {
     frequency: f64,
     offset: f64,
@@ -274,6 +276,7 @@ impl IterationInputs {
     }
 
     pub fn iterate(&self)-> Result<IterationResult, Vec<ParameterError>> {
+        debug!("Calling iterate() on {:?}", self);
         let result = self.mapper()?.iterate_from_point(self.phi, self.v, self.num_iterations);
 
         Ok(result)

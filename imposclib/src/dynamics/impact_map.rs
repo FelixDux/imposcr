@@ -9,6 +9,7 @@ use super::impact::ImpactGenerator as ImpactGenerator;
 use super::parameters::Parameters as Parameters;
 use super::forcing_phase::PhaseConverter as PhaseConverter;
 use std::cmp;
+use log::debug;
 
 pub struct IterationResult 
 {
@@ -71,6 +72,8 @@ impl ImpactMap {
 
     // Apply the map to an impact
     pub fn apply(&self, impact: Impact) -> ImpactResult {
+        debug!("Applying impact map to impact {:?}", impact);
+
         let trajectory = self.motion.next_impact(impact);
 
         let state_at_impact = trajectory.last();
@@ -80,6 +83,7 @@ impl ImpactMap {
 
     // Iterate the map 
     pub fn iterate(&mut self, initial_impact: Impact, num_iterations: u32) -> IterationResult {
+        debug!("Iterating from impact {:?}", initial_impact);
 
         let mut long_excursions = false;
 

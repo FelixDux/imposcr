@@ -4,6 +4,7 @@ use super::model_types::Phase as Phase;
 use super::model_types::Velocity as Velocity;
 use super::model_types::Coefficient as Coefficient;
 use float_eq::FloatEq;
+use std::fmt::Display;
 
 /// Each impact is uniquely specified by two parameters:
 /// The `phase` (`time` modulo and scaled by the forcing period) at
@@ -17,13 +18,13 @@ use float_eq::FloatEq;
 /// is physically meaningful depends on the value of the `phase` and on 
 /// the offset of the obstacle from the centre of motion.
 ///
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct SimpleImpact {
 	phase: Phase,
 	velocity: Velocity
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct Impact {
 	simple_impact: SimpleImpact,
 	time: Time

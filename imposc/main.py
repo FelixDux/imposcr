@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException
-from adapters import iterate_impacts, parameter_info, get_app_info, iterate, IterationOutputs
+from adapters import iterate_impacts, parameter_info, get_app_info, IterationOutputs
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
