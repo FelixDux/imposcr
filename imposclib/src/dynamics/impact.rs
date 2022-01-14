@@ -24,6 +24,16 @@ pub struct SimpleImpact {
 	velocity: Velocity
 }
 
+impl SimpleImpact{
+	pub fn phase(&self) -> Phase {
+		self.phase
+	}
+
+	pub fn velocity(&self) -> Velocity {
+		self.velocity
+	}
+}
+
 #[derive(Copy, Clone, Debug)]
 pub struct Impact {
 	simple_impact: SimpleImpact,

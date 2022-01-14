@@ -10,8 +10,10 @@ VENV=$(VENVDIR)/bin
 LIBDIR=$(realpath ./imposclib)
 TARGET?=$(LIBDIR)/target
 DEVELOPDIR=$(VENVDIR)/lib/$(PY)/site-packages/imposclib
-REQUIREMENTS_DEV=$(IMPOSCDIR)/requirements-dev.txt
+REQUIREMENTS=$(IMPOSCDIR)/requirements
+REQUIREMENTS_DEV=$(IMPOSCDIR)/requirements-dev
 TOUCH=touch
+PORT?=8000
 
 
 venv: $(VENV)/$(MARKER)
@@ -20,10 +22,19 @@ $(VENV):
 	$(PY) -m venv $(VENVDIR)
 	$(VENV)/python -m pip install --upgrade pip setuptools wheel
 
-$(REQUIREMENTS_DEV): $(VENV)
-	$(VENV)/python -m pip install -r $(REQUIREMENTS_DEV)
+$(REQUIREMENTS).out: $(VENV) $(REQUIREMENTS).txt
+	$(VENV)/python -m pip install -r $(REQUIREMENTS).txt
+	$(VENV)/python -m pip freeze -r $(REQUIREMENTS).txt > $(REQUIREMENTS).out
 
-$(VENV)/$(MARKER): $(REQUIREMENTS_DEV)
+$(REQUIREMENTS_DEV).out: $(VENV) $(REQUIREMENTS_DEV).txt
+	$(VENV)/python -m pip install -r $(REQUIREMENTS_DEV).txt
+	$(VENV)/python -m pip freeze -r $(REQUIREMENTS_DEV).txt > $(REQUIREMENTS_DEV).out
+        
+.PHONY: clean-out
+clean-out:
+	-$(RM) $(REQUIREMENTS).out $(REQUIREMENTS_DEV).out
+
+$(VENV)/$(MARKER):
 	$(TOUCH) $(VENV)/$(MARKER)
 
 .PHONY: clean-venv
@@ -33,14 +44,15 @@ clean-venv:
 .PHONY: clean-cargo
 clean-cargo:
 	-$(RM) -r "$(TARGET)"
+	-$(RM) $(DEVELOPDIR)/$(MARKER)
 
 .PHONY: clean
-clean: clean-venv clean-cargo
+clean: clean-venv clean-cargo clean-out
 
 .PHONY: develop
-develop: $(DEVELOPDIR)/$(MARKER)
+develop: $(DEVELOPDIR)/$(MARKER) $(TARGET)
 
-$(DEVELOPDIR)/$(MARKER): venv
+$(DEVELOPDIR)/$(MARKER): $(REQUIREMENTS).out
 	source $(VENV)/activate && cd imposclib && maturin develop
 	$(TOUCH) $(DEVELOPDIR)/$(MARKER)
 
@@ -53,6 +65,7 @@ cargo-test:
 	cd imposclib && RUST_LOG=debug cargo test
 
 pytest: develop
+	$(VENV)/python -m pip install pytest pytest-cov
 	cd imposc && $(VENV)/python -m pytest
 
 jstest: npm-install
@@ -65,7 +78,7 @@ cargo-doc:
 	cd imposclib && cargo doc --no-deps
 
 run: develop
-	source $(VENV)/activate && cd $(IMPOSCDIR) && uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+	source $(VENV)/activate && cd $(IMPOSCDIR) && uvicorn main:app --host 0.0.0.0 --port $(PORT) --reload
 
 run-debug: develop
-	source $(VENV)/activate && cd $(IMPOSCDIR) && RUST_LOG=debug uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+	source $(VENV)/activate && cd $(IMPOSCDIR) && RUST_LOG=debug uvicorn main:app --host 0.0.0.0 --port $(PORT) --reload

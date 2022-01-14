@@ -25,6 +25,8 @@ fn imposclib(_py: Python, m: &PyModule) -> PyResult<()> {
     // Note that the `#[pyfn()]` annotation automatically converts the arguments from
     // Python objects to Rust values, and the Rust return value back into a Python object.
     // The `_py` argument represents that we're holding the GIL.
+    pyo3_log::init();
+
     m.add_class::<PropertyPair>()?;
     m.add_class::<ParameterProperties>()?;
     m.add_class::<PyImpact>()?;
@@ -55,7 +57,7 @@ fn group_properties() -> ParameterProperties {
 }
 
 #[pyclass]
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Debug)]
 pub struct PropertyPair {
     parameter: String,
     property: String,
@@ -124,6 +126,7 @@ impl PyIterProtocol for PyPropertyPairIter {
 }
 
 #[pyclass]
+#[derive(Debug)]
 pub struct ParameterProperties {
     properties: HashMap<String, PropertyPair>,
 }
@@ -154,6 +157,8 @@ impl PyMappingProtocol for ParameterProperties {
 #[pyproto]
 impl PyIterProtocol for ParameterProperties {
     fn __iter__(slf: PyRefMut<Self>) -> PyResult<PyObject> {
+        debug!("Calling iterate() on {:?}", slf);
+
         let props = &*slf;
         let gil = Python::acquire_gil();
         let py = gil.python();
@@ -307,8 +312,8 @@ impl PyImpact {
 impl From<SimpleImpact> for PyImpact {
     fn from(impact: SimpleImpact) -> PyImpact {
         PyImpact {
-            phase: 0.0,
-            velocity: 0.0,
+            phase: impact.phase(),
+            velocity: impact.velocity(),
         }
     }
 }

@@ -3,7 +3,7 @@ from adapters import iterate_impacts, parameter_info, get_app_info, IterationOut
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
-from logging import warn
+from logging import warning
 from typing import Optional
 from imposclib.imposclib import IterationInputs
 
@@ -12,7 +12,7 @@ app = FastAPI(**(get_app_info())) # TODO: configure info and info endpoint from 
 app.mount("/static", StaticFiles(directory="./static"), name="static")
 
 def respond_with_error(status_code: int, detail: str) -> None:
-    warn(f"Raising HTTPException(status_code={status_code}, detail={detail})")
+    warning(f"Raising HTTPException(status_code={status_code}, detail={detail})")
     raise HTTPException(status_code=status_code, detail=detail)
 
 @app.get("/")

@@ -47,14 +47,15 @@ def test_read_parameter_info_bad_path(category, status, response_json):
     assert actual_status == status
     assert json == response_json
 
-# def test_get_impact_iteration():
-#     input_json = {"frequency": 2.0,
-#     "offset": 0.0,
-#     "r": 0.8,
-#     "max_periods": 100,
-#     "phi": 0.0,
-#     "v": 0.0,
-#     "num_iterations": 2}
-#     json, actual_status = post_response_for_test(f"/api/iteration/data", input_json)
-#     assert actual_status == 200, f"{json}"
-#     assert json
+def test_get_impact_iteration():
+    input_json = {"frequency": 2.0,
+    "offset": 0.0,
+    "r": 0.8,
+    "max_periods": 100,
+    "phi": 0.0,
+    "v": 0.0,
+    "num_iterations": 2}
+    json, actual_status = post_response_for_test(f"/api/iteration/data", input_json)
+    assert actual_status == 200, f"{json}"
+    assert json
+    

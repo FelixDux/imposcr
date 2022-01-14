@@ -10,6 +10,7 @@ readme = "../README.md"
 [dependencies]
 maturin = "0.11.2"
 log = "0.4"
+pyo3-log = "0.4.0"
 # float_eq = "*"
 
 [lib]
