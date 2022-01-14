@@ -43,7 +43,7 @@ clean-venv:
         
 .PHONY: clean-img
 clean-img:
-	-$(RM) ./*.png
+	-$(RM) ./*.png imposc/*.png
 
 .PHONY: clean-cargo
 clean-cargo:
