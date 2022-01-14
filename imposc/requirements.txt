@@ -2,3 +2,4 @@ fastapi
 aiofiles
 pydantic
 uvicorn[standard]
+matplotlib

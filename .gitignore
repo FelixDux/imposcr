@@ -17,3 +17,6 @@ __pycache__
 *.o
 node_modules/**
 imposc/static/node_modules/*
+
+*.png
+*.out

@@ -40,6 +40,10 @@ $(VENV)/$(MARKER):
 .PHONY: clean-venv
 clean-venv:
 	-$(RM) -r "$(VENVDIR)"
+        
+.PHONY: clean-img
+clean-img:
+	-$(RM) ./*.png
 
 .PHONY: clean-cargo
 clean-cargo:
@@ -47,7 +51,7 @@ clean-cargo:
 	-$(RM) $(DEVELOPDIR)/$(MARKER)
 
 .PHONY: clean
-clean: clean-venv clean-cargo clean-out
+clean: clean-venv clean-cargo clean-out clean-img
 
 .PHONY: develop
 develop: $(DEVELOPDIR)/$(MARKER) $(TARGET)
@@ -77,7 +81,7 @@ test: cargo-test pytest jstest
 cargo-doc:
 	cd imposclib && cargo doc --no-deps
 
-run: develop
+run: develop clean-img
 	source $(VENV)/activate && cd $(IMPOSCDIR) && uvicorn main:app --host 0.0.0.0 --port $(PORT) --reload
 
 run-debug: develop

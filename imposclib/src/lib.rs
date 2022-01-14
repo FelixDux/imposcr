@@ -74,7 +74,6 @@ impl PropertyPair {
             property: String::new(),
         })
     }
-
 }
 
 impl From<(&str, &str)> for PropertyPair {
@@ -307,6 +306,13 @@ impl PyImpact {
         })
     }
 
+	pub fn phase(&self) -> Phase {
+		self.phase
+	}
+
+	pub fn velocity(&self) -> Velocity {
+		self.velocity
+	}
 }
 
 impl From<SimpleImpact> for PyImpact {
