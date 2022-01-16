@@ -53,12 +53,11 @@ clean-cargo:
 .PHONY: clean
 clean: clean-venv clean-cargo clean-out clean-img
 
-.PHONY: develop
+.PHONY: develop $(REQUIREMENTS).out
 develop: $(DEVELOPDIR)/$(MARKER) $(TARGET)
 
-$(DEVELOPDIR)/$(MARKER): $(REQUIREMENTS).out
+$(DEVELOPDIR)/$(MARKER): $(REQUIREMENTS_DEV).out
 	source $(VENV)/activate && cd imposclib && maturin develop
-	$(TOUCH) $(DEVELOPDIR)/$(MARKER)
 
 .PHONY: npm-install
 npm-install:

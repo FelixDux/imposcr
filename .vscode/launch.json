@@ -5,12 +5,28 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "type": "firefox",
+            "request": "launch",
+            "reAttach": true,
+            "name": "Launch localhost",
+            "url": "http://localhost:8000/static/index.html",
+            "webRoot": "${workspaceFolder}/imposc",
+            "pathMappings": [
+                {
+                    "url": "http://localhost:8000",
+                    "path": "${workspaceFolder}/imposc"
+                },
+            ]
+        },
+        {
             "name": "Python: tests",
             "type": "python",
             "request": "launch",
             "cwd": "${workspaceFolder}/imposc",
             "module": "pytest",
-            "env": {"PYTHONPATH":".:../imposclib"}
+            "env": {
+                "PYTHONPATH": ".:../imposclib"
+            }
         },
         {
             "name": "Python: FastAPI",
@@ -22,7 +38,9 @@
                 "main:app"
             ],
             "jinja": true,
-            "env": {"PYTHONPATH":".:../imposclib"}
+            "env": {
+                "PYTHONPATH": ".:../imposclib"
+            }
         },
         {
             "type": "lldb",

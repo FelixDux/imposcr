@@ -53,7 +53,7 @@ fn symbol_properties() -> ParameterProperties {
 
 #[pyfunction]
 fn group_properties() -> ParameterProperties {
-    ParameterProperties::from(vec![("frequency", "System parameters"), ("offset", "System parameters"), ("r", "System parameters"), ("phi", "Initial impact"), ("v", "Initial impact"), ("maxPeriods", "Control parameters"), ("numIterations", "Control parameters"), ("numPoints", "Control parameters")])
+    ParameterProperties::from(vec![("frequency", "System parameters"), ("offset", "System parameters"), ("r", "System parameters"), ("phi", "Initial impact"), ("v", "Initial impact"), ("max_periods", "Control parameters"), ("num_iterations", "Control parameters"), ("num_points", "Control parameters")])
 }
 
 #[pyclass]

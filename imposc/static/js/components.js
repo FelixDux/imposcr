@@ -25,47 +25,32 @@ function refreshFormWithError(error) {
 }
 
 class ParameterInfo {
-    constructor(symbolsGetter) {
-        this.symbols = new Map();
+    constructor(propertiesGetter) {
+        this.properties = new Map();
 
-        const setter = (data) => {this.addSymbols(data)};
+        const setter = (data) => {this.addProperties(data)};
 
-        symbolsGetter(setter);
+        propertiesGetter(setter);
     }
 
-    addSymbols(data) {
+    addProperties(data) {
         try {
-            data.Symbols.forEach( (e, _) => {
-                this.symbols.set(e.Parameter, e.Property);
+            data.Properties.forEach( (e, _) => {
+                this.properties.set(e.Parameter, e.Property);
             });
         }
         catch {
-            console.log('Symbols lookup initialised with invalid data');
+            console.log('Properties lookup initialised with invalid data');
         }
     }
 
     lookup(parameter) {
-        if (this.symbols.has(parameter)) {
-            return this.symbols.get(parameter);
+        if (this.properties.has(parameter)) {
+            return this.properties.get(parameter);
         }
         else {
             return parameter;
         }
-    }
-}
-
-class FullPathBuilder {
-    constructor(apiData) {
-
-        this.basePath = "";
-
-        const setter = path => this.basePath = JSON.stringify(path).replace(/\"/g, "");
-
-        extractFromAPIInfo(apiData, 'basePath', setter);
-    }
-
-    fullPath(path) {
-        return `${this.basePath}${path}`;
     }
 }
 
@@ -75,15 +60,17 @@ class Parameter {
 
         this.group = '';
 
-        if ('name' in apiData && 'description' in apiData) {
+        if ('name' in apiData && 'schema' in apiData) {
+
             this.name = apiData.name;
             this.label = symbols.lookup(apiData.name);
             this.group = groups.lookup(apiData.name);
-            this.description = apiData.description;
 
-            Object.keys(apiData).forEach( key => {
-                if (!['name', 'description', 'in', 'group'].includes(key)) {
-                    this.attributes.push({name: key, value: apiData[key]});
+            this.description = apiData.schema.title;
+
+            Object.keys(apiData.schema).forEach( key => {
+                if (!['name', 'title', 'summary', 'in', 'group'].includes(key)) {
+                    this.attributes.push({name: key, value: apiData.schema[key]});
                 }
             })
         }
@@ -198,7 +185,10 @@ class Path {
         const formContent = this.formHtml();
         const action = this.path;
         const refreshNav = () => {refreshNavbar(action);}
-        document.getElementById(this.id).addEventListener("click", function () {refreshForm(formContent); document.getElementById('form').action = action; refreshNav();});
+        document.getElementById(this.id).addEventListener("click", 
+            function () {refreshForm(formContent); 
+                document.getElementById('form').action = action; 
+                refreshNav();});
     }
 
     navHtml() {
@@ -288,11 +278,9 @@ class PathsHolder {
     constructor(apiData, symbols, groups) {
         this.paths = [];
 
-        const pathBuilder = new FullPathBuilder(apiData);
-
         const setter = paths => {const pairs = kvObjectToPairs(paths); pairs.forEach(pair => {
-            if ('post' in pair[1] && pair[0].endsWith("image/")) {
-                this.paths.push(new Path(pathBuilder.fullPath(pair[0]), pair[1], symbols, groups))
+            if ('post' in pair[1] && pair[0].replace('/','').endsWith("image")) {
+                this.paths.push(new Path(pair[0], pair[1], symbols, groups))
             };
         });};
 
@@ -377,4 +365,4 @@ class Header {
     }
 }
 
-export {FullPathBuilder, Parameter, Header, PathsHolder, ParameterInfo};
+export {Parameter, Header, PathsHolder, ParameterInfo};

@@ -1,11 +1,11 @@
 from pathlib import Path
+from dataclasses import dataclass
 import io
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends, Query
 from adapters import iterate_impacts, parameter_info, get_app_info, IterationOutputs
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 from starlette.responses import StreamingResponse
-from pydantic import BaseModel
 from logging import warning
 from imposclib.imposclib import IterationInputs
 from charts import scatter_plot
@@ -22,6 +22,10 @@ def respond_with_error(status_code: int, detail: str) -> None:
 async def read_main():
     return RedirectResponse("/static/index.html")
 
+@app.get("/favicon.ico")
+async def read_favicon():
+    return RedirectResponse("/static/favicon.ico")
+
 @app.get("/api/parameter-info/{category}")
 async def read_parameter_info(category):
     result = parameter_info(category)
@@ -31,14 +35,15 @@ async def read_parameter_info(category):
     else:
         return result
 
-class IterationPostData(BaseModel):
-    frequency: float = 2.8
-    offset: float = 0.0
-    r: float = 0.8
-    max_periods: int = 100
-    phi: float = 0.0
-    v: float = 0.0
-    num_iterations: int = 10
+@dataclass
+class IterationPostData:
+    frequency: float = Query(2.8, title="Forcing frequency", gt=0)
+    offset: float = Query(0.0, title="Obstacle offset")
+    r: float = Query(0.8, title="Coefficient of restitution", ge=0, le=1)
+    max_periods: int = Query(100, title="Number of periods without an impact after which the algorithm will report 'long excursions'", gt=0)
+    phi: float = Query(0.0, title="Phase at initial impact")
+    v: float = Query(0.0, title="Velocity at initial impact")
+    num_iterations: int = Query(5000, title="Number of iterations of impact map")
 
     def __call__(self) -> IterationInputs:
         return IterationInputs(
@@ -51,7 +56,7 @@ class IterationPostData(BaseModel):
             num_iterations = self.num_iterations)
         
 @app.post("/api/iteration/data")
-async def read_iteration_data(data: IterationPostData):
+async def read_iteration_data(data: IterationPostData=Depends()):
     if data is None:
         respond_with_error(status_code=400, detail="Form inputs not found")
 
@@ -87,8 +92,9 @@ def image_response(filename: str) -> StreamingResponse:
                     media_type = image_content_type(img_file)
             )
 
-@app.post("/api/iteration/plot")
-async def read_iteration_plot(data: IterationPostData):
+@app.post("/api/iteration/image", summary="Scatter Plot")
+async def read_iteration_plot(data: IterationPostData=Depends()):
+    """ Scatter plot from iterating the impact map for a specified set of parameters """
     if data is None:
         respond_with_error(status_code=400, detail="Form inputs not found")
 

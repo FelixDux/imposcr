@@ -17,5 +17,6 @@ def scatter_plot(data):
     file_name = unique_file_name("png")
     plt.plot(x, y, linestyle='', marker='.', markersize=1, mec='black', mfc='black')
     plt.savefig(file_name)
+    plt.close()
 
     return file_name
