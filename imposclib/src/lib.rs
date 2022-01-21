@@ -230,7 +230,7 @@ use crate::dynamics::impact_map::IterationResult as IterationResult;
 use crate::dynamics::impact_map::ImpactMap as ImpactMap;
 
 #[pyclass]
-#[derive(Clone, Default, Debug)]
+#[derive(Clone, Default, Debug, Copy)]
 pub struct IterationInputs {
     frequency: f64,
     offset: f64,
@@ -457,6 +457,7 @@ fn iterate(inputs: IterationInputs) -> IterationOutputs {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::convert::TryFrom;
 
     #[test]
     fn can_access_parameter_properties() {
@@ -464,4 +465,23 @@ mod tests {
         assert_eq!(properties.property("frequency").property, String::from("ω"));
         assert_eq!(properties.property("period").property, String::from(""));
     }
+
+    // #[test]
+    // fn can_run_to_completion() {
+    //     let inputs = IterationInputs{
+    //         frequency: 4.85,
+    //         offset: -0.1,
+    //         r: 0.8,
+    //         max_periods: 100,
+    //         phi: 0.0,
+    //         v: 0.0,
+    //         num_iterations: 1000
+    //     };
+        
+    //     let result = iterate(inputs);
+
+    //     let n = u32::try_from(result.impacts.len()).unwrap();
+
+    //     assert_eq!(inputs.num_iterations+1, n);
+    // }
 }

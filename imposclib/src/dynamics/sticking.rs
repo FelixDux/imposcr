@@ -122,24 +122,26 @@ mod tests {
 
     #[test]
     fn test_sticking_region() -> () {
-        let frequencies = vec![2.8, 3.7, 4.0];
+        let frequencies = vec![2.8, 3.7, 4.0, 4.85];
     
         let r = 0.8;
     
-        let offset = 0.0;
+        let offsets = vec![0.0, -0.1];
     
         for frequency in frequencies.iter() {
-            let params = Parameters::new(*frequency, offset, r, 100).unwrap();
-    
-            let sticking = Sticking::new(params);
-    
-            let impact_time = 0.0;
-    
-            assert!(sticking.time_sticks(impact_time));
-    
-            assert!(sticking.release_time(impact_time) > impact_time);
-    
-            assert!(sticking.phase_in >= sticking.phase_out);    
+            for offset in offsets.iter() {
+                let params = Parameters::new(*frequency, *offset, r, 100).unwrap();
+        
+                let sticking = Sticking::new(params);
+        
+                let impact_time = 0.0;
+        
+                assert!(sticking.time_sticks(impact_time));
+        
+                assert!(sticking.release_time(impact_time) > impact_time);
+        
+                assert!(sticking.phase_in >= sticking.phase_out);    
+            }
         }
     }
 }

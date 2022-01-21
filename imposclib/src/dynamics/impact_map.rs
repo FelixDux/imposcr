@@ -147,3 +147,19 @@ impl ImpactMap {
         result
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // #[test]
+    // fn test_apply_always_returns() {
+    //     let parameters = Parameters::new(4.85, -0.1, 0.8, 100).unwrap();
+
+    //     let mapper = ImpactMap::new(parameters);
+
+    //     let impact_result = mapper.apply(mapper.generate_impact(0.0, 0.0));
+
+    //     assert!(impact_result.found_impact);
+    // }
+}

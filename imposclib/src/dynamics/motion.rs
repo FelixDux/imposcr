@@ -34,18 +34,18 @@ impl StateOfMotion {
 
 #[derive(Debug)]
 pub struct LongExcursionChecker {
-    converter: PhaseConverter,
+    period: Time,
     from_time: Time,
     maximum_periods: u32
 }
 
 impl LongExcursionChecker {
     fn new(maximum_periods: u32, converter: PhaseConverter, from_time: Time) -> LongExcursionChecker {
-        LongExcursionChecker{converter: converter, from_time: from_time, maximum_periods: maximum_periods}
+        LongExcursionChecker{period: converter.period(), from_time: from_time, maximum_periods: maximum_periods}
     }
 
     pub fn check(&self, time: Time) -> bool {
-        time - self.from_time > (self.maximum_periods as f64) * self.converter.period()
+        time - self.from_time > (self.maximum_periods as f64) * self.period
     }
 }
 
@@ -253,5 +253,31 @@ mod tests {
 
         assert_eq!(state.displacement, 0.0);
         assert_eq!(state.velocity, -0.8);
+    }
+
+    #[test]
+    fn test_long_excursions() {
+        let maximum_periods = 100u32;
+        let converter = PhaseConverter::new(4.85).unwrap();
+        let checker = LongExcursionChecker::new(maximum_periods, converter, 0.0);
+
+        let good_time = (maximum_periods - 1) as Time * converter.period();
+        let bad_time = (maximum_periods + 1) as Time * converter.period();
+
+        assert!(!checker.check(good_time));
+        assert!(checker.check(bad_time));
+    }
+
+    #[test]
+    fn test_next_impact() {
+        let parameters = Parameters::new(4.85, -0.1, 0.8, 100).unwrap();
+
+        let motion_generator = MotionBetweenImpacts::new(parameters);
+
+        let impact_generator = ImpactGenerator::new(parameters.converter());
+
+        let impact_result = motion_generator.next_impact(impact_generator.generate(0.0, 0.0));
+
+        assert!(impact_result.found_impact);
     }
 }
