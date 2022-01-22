@@ -78,6 +78,14 @@
             },
             "args": [],
             "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Unit tests",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceRoot}/imposclib/target/debug/deps/imposclib-ed3a1f3f9022fe76",
+            "args": [],
+            "cwd": "${workspaceRoot}",
         }
     ]
 }

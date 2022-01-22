@@ -9,6 +9,7 @@ use super::model_types::Velocity as Velocity;
 use super::model_types::Coefficient as Coefficient;
 use super::impact::Impact as Impact;
 use super::sticking::Sticking as Sticking;
+use super::impact::ImpactGenerator as ImpactGenerator;
 
 #[derive(Debug, Copy, Clone)]
 pub struct StateOfMotion {
@@ -29,6 +30,10 @@ impl StateOfMotion {
 
     pub fn velocity(&self) -> Velocity {
         self.velocity
+    }
+
+    pub fn constrain(&self, offset: Distance) -> StateOfMotion {
+        StateOfMotion{displacement: if offset < self.displacement {offset} else{self.displacement}, ..*self}
     }
 }
 
@@ -85,6 +90,10 @@ impl MotionAtTime {
             velocity: self.sin_coefficient * cos_lambda - self.cos_coefficient * sin_lambda - 
                 self.parameters.forcing_frequency() * self.parameters.gamma() * (time * self.parameters.forcing_frequency()).sin() }
     }
+
+    pub fn constrained_state(&self, time: Time) -> StateOfMotion {
+        self.state(time).constrain(self.parameters.obstacle_offset())
+    }
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -128,6 +137,7 @@ pub struct MotionBetweenImpacts {
     // Generates a trajectory from one impact to the next
     //
 	motion_generator: MotionGenerator,
+    impact_generator: ImpactGenerator,
 	sticking: Sticking,
 	search: SearchParameters,
 	offset: Distance
@@ -138,7 +148,10 @@ impl MotionBetweenImpacts {
     pub fn new(parameters: Parameters) -> MotionBetweenImpacts {
         let sticking = Sticking::new(parameters);
 
-        MotionBetweenImpacts{motion_generator: MotionGenerator::new(parameters), sticking: sticking, search: SearchParameters::default(), offset: parameters.obstacle_offset()}
+        MotionBetweenImpacts{motion_generator: MotionGenerator::new(parameters), 
+            impact_generator: ImpactGenerator::new(parameters.converter()),
+            sticking: sticking, search: SearchParameters::default(), 
+            offset: parameters.obstacle_offset()}
     }
 
     pub fn motion(&self, impact: Impact) -> MotionAtTime {
@@ -153,9 +166,14 @@ impl MotionBetweenImpacts {
 
         let mut step_size = self.search.initial_step_size;
 
-        let motion_model = self.motion_generator.generate(impact);
+        // NextImpactResult accounts for sticking in the initial impact
+        let initial_state = result.motion.last().unwrap();
 
-        let mut current_time = result.motion.last().unwrap().time;
+        let mut current_time = initial_state.time;
+
+        let motion_model = self.motion_generator.generate(
+            self.impact_generator.generate(current_time, initial_state.velocity)
+        );
 
         while step_size.abs() > self.search.minimum_step_size && result.found_impact {
             current_time += step_size;

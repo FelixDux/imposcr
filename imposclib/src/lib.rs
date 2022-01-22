@@ -466,22 +466,22 @@ mod tests {
         assert_eq!(properties.property("period").property, String::from(""));
     }
 
-    // #[test]
-    // fn can_run_to_completion() {
-    //     let inputs = IterationInputs{
-    //         frequency: 4.85,
-    //         offset: -0.1,
-    //         r: 0.8,
-    //         max_periods: 100,
-    //         phi: 0.0,
-    //         v: 0.0,
-    //         num_iterations: 1000
-    //     };
+    #[test]
+    fn can_run_to_completion() {
+        let inputs = IterationInputs{
+            frequency: 4.85,
+            offset: -0.1,
+            r: 0.8,
+            max_periods: 100,
+            phi: 0.0,
+            v: 0.0,
+            num_iterations: 1000
+        };
         
-    //     let result = iterate(inputs);
+        let result = iterate(inputs);
 
-    //     let n = u32::try_from(result.impacts.len()).unwrap();
+        let n = u32::try_from(result.impacts.len()).unwrap();
 
-    //     assert_eq!(inputs.num_iterations+1, n);
-    // }
+        assert_eq!(inputs.num_iterations+1, n);
+    }
 }

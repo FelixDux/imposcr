@@ -8,7 +8,6 @@ use super::model_types::Coefficient as Coefficient;
 use super::impact::ImpactGenerator as ImpactGenerator;
 use super::parameters::Parameters as Parameters;
 use super::forcing_phase::PhaseConverter as PhaseConverter;
-use std::cmp;
 use log::debug;
 
 pub struct IterationResult 
