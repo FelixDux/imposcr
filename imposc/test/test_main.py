@@ -20,8 +20,16 @@ def test_read_main():
     assert response.status_code == 200
 
 @pytest.mark.parametrize(('category', 'status', 'response_json'), [
-    ("symbols", 200, {"Properties":[{"Parameter":"frequency","Property":"ω"},{"Parameter":"offset","Property":"σ"},{"Parameter":"phi","Property":"φ"}]}),
-    ("groups", 200, {"Properties":[{"Parameter":"frequency","Property":"System parameters"},{"Parameter":"offset","Property":"System parameters"},{"Parameter":"r","Property":"System parameters"},{"Parameter":"phi","Property":"Initial impact"},{"Parameter":"v","Property":"Initial impact"},{"Parameter":"maxPeriods","Property":"Control parameters"},{"Parameter":"numIterations","Property":"Control parameters"},{"Parameter":"numPoints","Property":"Control parameters"}]}),
+    ("symbols", 200, {"Properties":[{"Parameter":"frequency","Property":"ω"},
+    {"Parameter":"offset","Property":"σ"},{"Parameter":"phi","Property":"φ"}]}),
+    ("groups", 200, {"Properties":[{"Parameter":"frequency","Property":"System parameters"},
+    {"Parameter":"offset","Property":"System parameters"},
+    {"Parameter":"r","Property":"System parameters"},
+    {"Parameter":"phi","Property":"Initial impact"},
+    {"Parameter":"v","Property":"Initial impact"},
+    {"Parameter":"max_periods","Property":"Control parameters"},
+    {"Parameter":"num_iterations","Property":"Control parameters"},
+    {"Parameter":"num_points","Property":"Control parameters"}]}),
 ])
 def test_read_parameter_info(category, status, response_json):
 
@@ -34,10 +42,10 @@ def test_read_parameter_info(category, status, response_json):
     body = json["Properties"]
         
     for element in response_json["Properties"]:
-        assert element in body
+        assert element in body, f"Element {element} not found in response "
 
     for element in body:
-        assert element in response_json["Properties"]
+        assert element in response_json["Properties"], f"Unexpected element {element} found in response "
 
 @pytest.mark.parametrize(('category', 'status', 'response_json'), [("garbage", 404, {"detail": "Parameter info category not found"})
 ])
@@ -58,4 +66,4 @@ def test_get_impact_iteration():
     json, actual_status = post_response_for_test(f"/api/iteration/data", input_json)
     assert actual_status == 200, f"{json}"
     assert json
-    
+    # assert len(json) == 2
