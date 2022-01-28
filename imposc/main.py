@@ -2,7 +2,7 @@ from pathlib import Path
 from dataclasses import dataclass
 import io
 from fastapi import FastAPI, HTTPException, Depends, Query
-from adapters import iterate_impacts, parameter_info, get_app_info, IterationOutputs
+from adapters import iterate_impacts, parameter_info, get_app_info
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 from starlette.responses import StreamingResponse
@@ -25,6 +25,10 @@ async def read_main():
 @app.get("/favicon.ico")
 async def read_favicon():
     return RedirectResponse("/static/favicon.ico")
+
+@app.get("/spinner.html")
+async def read_spinner():
+    return RedirectResponse("/static/spinner.html")
 
 @app.get("/api/parameter-info/{category}")
 async def read_parameter_info(category):
