@@ -37,6 +37,7 @@ fn imposclib(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(symbol_properties, m)?)?;
     m.add_function(wrap_pyfunction!(group_properties, m)?)?;
     m.add_function(wrap_pyfunction!(iterate, m)?)?;
+    m.add_function(wrap_pyfunction!(validate, m)?)?;
 
     Ok(())
 }
@@ -264,6 +265,33 @@ impl IterationInputs {
         })
     }
 
+    pub fn frequency(&self) -> f64 {
+        self.frequency
+    }
+
+    pub fn offset(&self) -> f64 {
+        self.offset
+    }
+
+    pub fn phi(&self) -> f64 {
+        self.phi
+    }
+
+    pub fn r(&self) -> f64 {
+        self.r
+    }
+
+    pub fn v(&self) -> f64 {
+        self.v
+    }
+
+    pub fn max_periods(&self) -> u32 {
+        self.max_periods
+    }
+
+    pub fn num_iterations(&self) -> u32 {
+        self.num_iterations
+    }
 }
 
 impl IterationInputs {
@@ -452,6 +480,11 @@ fn iterate(inputs: IterationInputs) -> IterationOutputs {
     let result = inputs.iterate().unwrap();
 
     IterationOutputs::from(&result)
+}
+
+#[pyfunction]
+fn validate(inputs: IterationInputs) -> IterationInputs {
+    inputs
 }
 
 #[cfg(test)]

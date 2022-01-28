@@ -1,5 +1,24 @@
 import pytest
-from adapters import parameter_info
+from adapters import parameter_info, validate_iter_inputs, IterationInputs
+
+@pytest.mark.parametrize("inputs", [
+    {
+        'frequency': 1.2,
+        'offset': -0.7,
+        'r': 0.1,
+        'max_periods': 58,
+        'phi': 0.1,
+        'v': 1.1,
+        'num_iterations': 35},
+])
+def test_validate_iter_inputs(inputs):
+    iteration_inputs = IterationInputs(**inputs)
+    result = validate_iter_inputs(iteration_inputs)
+
+    for key, value in inputs.items():
+        assert hasattr(result, key)
+        assert getattr(result, key)() == value
+    
 
 @pytest.mark.parametrize('input', ["garbage",12, 37.5])
 def test_parameter_info_not_valid(input):

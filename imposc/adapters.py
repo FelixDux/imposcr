@@ -1,4 +1,4 @@
-from imposclib.imposclib import ParameterProperties, symbol_properties, group_properties, app_info, iterate, IterationInputs, IterationOutputs
+from imposclib.imposclib import ParameterProperties, symbol_properties, group_properties, app_info, iterate, IterationInputs, IterationOutputs, validate
 from typing import Optional, Dict, Iterable
 
 def from_properties(properties: ParameterProperties) -> Iterable:
@@ -20,6 +20,9 @@ def parameter_info(category: str) -> Optional[Dict]:
 
 def iterate_impacts(inputs: IterationInputs) -> IterationOutputs:
     return iterate(inputs)
+
+def validate_iter_inputs(inputs: IterationInputs) -> IterationInputs:
+    return validate(inputs)
 
 if __name__ == "__main__":
 
