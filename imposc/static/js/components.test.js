@@ -1,4 +1,4 @@
-import {FullPathBuilder, Parameter, Header, PathsHolder, ParameterInfo} from './components.js';
+import {Parameter, ParameterInfo} from './components.js';
 
 const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 
@@ -6,7 +6,8 @@ function mockSymbolsGetter(data) {
     return (callback) => {callback(data)};
 }
 
-const goodSymbolData = {"Symbols":[{"Parameter":"offset","Property":"σ"},{"Parameter":"phi","Property":"φ"},{"Parameter":"frequency","Property":"ω"}]};
+const goodSymbolData = {"Properties":[{"Parameter":"offset","Property":"σ"},{"Parameter":"phi","Property":"φ"},
+    {"Parameter":"frequency","Property":"ω"}]};
 
 const goodSymbolsGetter = mockSymbolsGetter(goodSymbolData);
 const badSymbolsGetter = mockSymbolsGetter({});
@@ -42,42 +43,12 @@ describe('Unit tests for looking up symbols for parameter names', () => {
     })
 })
 
-describe('Unit tests for building a full path from a path and a base path', () => {
-    beforeEach(() => {
-      consoleSpy.mockClear()
-    })
-
-    const basePath = "/base/path";
-    const goodData = JSON.parse(`{"basePath": "${basePath}"}`);
-    const badData = JSON.parse(`{"acidPath": "${basePath}"}`);
-
-    test('Incorrectly initialised path builder fails gracefully', () => {
-        const builder = new FullPathBuilder(badData);
-
-        const path = "/more/path";
-
-        expect(builder.fullPath(path)).toBe(path);
-
-        expect(console.log).toBeCalledTimes(1);
-    })
-
-    test('Correctly initialised path builder builds correct path', () => {
-        const builder = new FullPathBuilder(goodData);
-
-        const path = "/more/path";
-
-        expect(builder.fullPath(path)).toBe(`${basePath}${path}`);
-
-        expect(console.log).toBeCalledTimes(0);
-    })
-})
-
 describe('Unit tests for rendering a parameter', () => {
     beforeEach(() => {
       consoleSpy.mockClear()
     })
 
-    const goodAPIData = JSON.parse('{"minimum": 0,"type": "number","description": "Forcing frequency","name": "frequency","in": "formData","required": true}');
+    const goodAPIData = JSON.parse('{"schema": {"minimum": 0,"type": "number","title": "Forcing frequency"},"name": "frequency","in": "formData","required": true}');
     const badAPIData = JSON.parse('{}');
 
     test('Parameter class fails gracefully when initialised with bad API data', () => {

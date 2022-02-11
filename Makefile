@@ -72,7 +72,7 @@ pytest: develop
 	cd imposc && $(VENV)/python -m pytest
 
 jstest: npm-install
-	cd imposc/static && npm test
+	cd imposc/static && npx browserslist@latest --update-db && npm test
 
 test: cargo-test pytest jstest
 
