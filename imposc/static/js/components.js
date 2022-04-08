@@ -162,7 +162,7 @@ class Path {
 
         this.state = {src: "", result: "", blob: {}};
 
-        const processPostData = data => {
+        const processQueryData = data => {
             this.summary = data['summary'];
             this.id = this.summary.replace(/\s/g, "");
             this.description = data['description'];
@@ -178,7 +178,7 @@ class Path {
             });
         };
 
-        extractFromAPIInfo(apiData, 'get', processPostData);
+        extractFromAPIInfo(apiData, 'get', processQueryData);
     }
 
     addListener(refreshNavbar) {

@@ -41,13 +41,13 @@ async def read_parameter_info(category):
 
 @dataclass
 class IterationQueryData:
-    frequency: float #= Query(2.8, title="Forcing frequency", gt=0)
-    offset: float #= Query(0.0, title="Obstacle offset")
-    r: float #= Query(0.8, title="Coefficient of restitution", ge=0, le=1)
-    max_periods: int #= Query(100, title="Number of periods without an impact after which the algorithm will report 'long excursions'", gt=0)
-    phi: float #= Query(0.0, title="Phase at initial impact")
-    v: float #= Query(0.0, title="Velocity at initial impact")
-    num_iterations: int #= Query(5000, title="Number of iterations of impact map")
+    frequency: float = Query(2.8, title="Forcing frequency", gt=0)
+    offset: float = Query(0.0, title="Obstacle offset")
+    r: float = Query(0.8, title="Coefficient of restitution", ge=0, le=1)
+    max_periods: int = Query(100, title="Number of periods without an impact after which the algorithm will report 'long excursions'", gt=0)
+    phi: float = Query(0.5, title="Phase at initial impact")
+    v: float = Query(0.0, title="Velocity at initial impact")
+    num_iterations: int = Query(5000, title="Number of iterations of impact map")
 
     def __call__(self) -> IterationInputs:
         return IterationInputs(
