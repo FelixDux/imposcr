@@ -67,7 +67,7 @@ npm-install:
 cargo-test:
 	cd imposclib && RUST_LOG=debug cargo test
 
-pytest: develop
+pytest: develop $(REQUIREMENTS).out
 	$(VENV)/python -m pip install pytest pytest-cov
 	cd imposc && $(VENV)/python -m pytest
 
@@ -80,8 +80,8 @@ test: cargo-test pytest jstest
 cargo-doc:
 	cd imposclib && cargo doc --no-deps
 
-run: develop clean-img
+run: develop clean-img $(REQUIREMENTS).out
 	source $(VENV)/activate && cd $(IMPOSCDIR) && uvicorn main:app --host 0.0.0.0 --port $(PORT) --reload
 
-run-debug: develop
+run-debug: develop $(REQUIREMENTS).out
 	source $(VENV)/activate && cd $(IMPOSCDIR) && RUST_LOG=debug uvicorn main:app --host 0.0.0.0 --port $(PORT) --reload

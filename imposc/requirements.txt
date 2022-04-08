@@ -3,3 +3,4 @@ aiofiles
 pydantic
 uvicorn[standard]
 matplotlib
+python-multipart

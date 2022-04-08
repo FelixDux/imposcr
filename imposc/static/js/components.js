@@ -178,7 +178,7 @@ class Path {
             });
         };
 
-        extractFromAPIInfo(apiData, 'post', processPostData);
+        extractFromAPIInfo(apiData, 'get', processPostData);
     }
 
     addListener(refreshNavbar) {
@@ -279,7 +279,7 @@ class PathsHolder {
         this.paths = [];
 
         const setter = paths => {const pairs = kvObjectToPairs(paths); pairs.forEach(pair => {
-            if ('post' in pair[1] && pair[0].replace('/','').endsWith("image")) {
+            if ('get' in pair[1] && pair[0].replace('/','').endsWith("image")) {
                 this.paths.push(new Path(pair[0], pair[1], symbols, groups))
             };
         });};
@@ -310,11 +310,7 @@ class PathsHolder {
 
         elem.addEventListener("submit", function (event) {
             clearImage();
-            fetch(elem.action,
-              {
-                method: 'POST',
-                body: new FormData(elem)
-              })
+            fetch(elem.action +'?' + new URLSearchParams(new FormData(elem))) 
             .then(response => {
               if (response.status >= 400 || !response.ok) {
                   response.json().then((json) => {                    

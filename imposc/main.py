@@ -40,14 +40,14 @@ async def read_parameter_info(category):
         return result
 
 @dataclass
-class IterationPostData:
-    frequency: float = Query(2.8, title="Forcing frequency", gt=0)
-    offset: float = Query(0.0, title="Obstacle offset")
-    r: float = Query(0.8, title="Coefficient of restitution", ge=0, le=1)
-    max_periods: int = Query(100, title="Number of periods without an impact after which the algorithm will report 'long excursions'", gt=0)
-    phi: float = Query(0.0, title="Phase at initial impact")
-    v: float = Query(0.0, title="Velocity at initial impact")
-    num_iterations: int = Query(5000, title="Number of iterations of impact map")
+class IterationQueryData:
+    frequency: float #= Query(2.8, title="Forcing frequency", gt=0)
+    offset: float #= Query(0.0, title="Obstacle offset")
+    r: float #= Query(0.8, title="Coefficient of restitution", ge=0, le=1)
+    max_periods: int #= Query(100, title="Number of periods without an impact after which the algorithm will report 'long excursions'", gt=0)
+    phi: float #= Query(0.0, title="Phase at initial impact")
+    v: float #= Query(0.0, title="Velocity at initial impact")
+    num_iterations: int #= Query(5000, title="Number of iterations of impact map")
 
     def __call__(self) -> IterationInputs:
         return IterationInputs(
@@ -59,8 +59,8 @@ class IterationPostData:
             v = self.v,
             num_iterations = self.num_iterations)
         
-@app.post("/api/iteration/data")
-async def read_iteration_data(data: IterationPostData=Depends()):
+@app.get("/api/iteration/data")
+async def read_iteration_data(data: IterationQueryData=Depends()):
     if data is None:
         respond_with_error(status_code=400, detail="Form inputs not found")
 
@@ -96,8 +96,8 @@ def image_response(filename: str) -> StreamingResponse:
                     media_type = image_content_type(img_file)
             )
 
-@app.post("/api/iteration/image", summary="Scatter Plot")
-async def read_iteration_plot(data: IterationPostData=Depends()):
+@app.get("/api/iteration/image", summary="Scatter Plot")
+async def read_iteration_plot(data: IterationQueryData=Depends()):
     """ Scatter plot from iterating the impact map for a specified set of parameters """
     if data is None:
         respond_with_error(status_code=400, detail="Form inputs not found")
